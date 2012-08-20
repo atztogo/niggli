@@ -3,6 +3,7 @@
 typedef struct {
   int ndim;
   int *shape;
+  
 } 
 
 static int step1(int C[9])
