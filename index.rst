@@ -9,15 +9,15 @@ Algorithm to determine Niggli cell
 Reference
 ^^^^^^^^^^
 
-  1. A Unified Algorithm for Determining the Reduced (Niggli) Cell,
-     I. Krivý and B. Gruber, Acta Cryst., A32, 297-298 (1976)
+1. A Unified Algorithm for Determining the Reduced (Niggli) Cell,
+   I. Krivý and B. Gruber, Acta Cryst., A32, 297-298 (1976)
 
-  2. The Relationship between Reduced Cells in a General Bravais lattice,
-     B. Gruber, Acta Cryst., A29, 433-440 (1973)
+2. The Relationship between Reduced Cells in a General Bravais lattice,
+   B. Gruber, Acta Cryst., A29, 433-440 (1973)
 
-  3. Numerically stable algorithms for the computation of reduced unit cells,
-     R. W. Grosse-Kunstleve, N. K. Sauter and P. D. Adams, Acta
-     Cryst., A60, 1-6 (2004)
+3. Numerically stable algorithms for the computation of reduced unit cells,
+   R. W. Grosse-Kunstleve, N. K. Sauter and P. D. Adams, Acta
+   Cryst., A60, 1-6 (2004)
   
 
 Algorithm
