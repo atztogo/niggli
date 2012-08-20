@@ -1,1 +1,165 @@
-Hello Niggli
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Niggli cell &mdash; niggli 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="niggli 0.1 documentation" href="#" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li><a href="#">niggli 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="niggli-cell">
+<span id="id1"></span><h1>Niggli cell<a class="headerlink" href="#niggli-cell" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="algorithm-to-determine-niggli-cell">
+<h2>Algorithm to determine Niggli cell<a class="headerlink" href="#algorithm-to-determine-niggli-cell" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="reference">
+<h3>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ol class="arabic simple">
+<li>A Unified Algorithm for Determining the Reduced (Niggli) Cell,
+I. Krivý and B. Gruber, Acta Cryst., A32, 297-298 (1976)</li>
+<li>The Relationship between Reduced Cells in a General Bravais lattice,
+B. Gruber, Acta Cryst., A29, 433-440 (1973)</li>
+<li>Numerically stable algorithms for the computation of reduced unit cells,
+R. W. Grosse-Kunstleve, N. K. Sauter and P. D. Adams, Acta
+Cryst., A60, 1-6 (2004)</li>
+</ol>
+</div></blockquote>
+</div>
+<div class="section" id="algorithm">
+<h3>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
+<p>1. If <img class="math" src="_images/math/b611541b8ff19822bf67058362abef847e3fce51.png" alt="A&gt;B - \varepsilon"/> or
+(<img class="math" src="_images/math/160cbffb4a84d6d7afc2cdda3308f05754202092.png" alt="\overline{|A-B|&gt;\varepsilon}"/> and <img class="math" src="_images/math/6d58c073516e6cdf0663c4a5043844269933edd6.png" alt="|\xi|&gt;|\eta| - \varepsilon"/>),</p>
+<blockquote>
+<div><div class="math">
+<p><img src="_images/math/814ecfee09fc326e249a573f0c5bce876684bf67.png" alt="\mathbf{C} =
+\begin{pmatrix}
+0 &amp; -1 &amp; 0 \\
+-1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; -1 \\
+\end{pmatrix}."/></p>
+</div></div></blockquote>
+<p>2. If <img class="math" src="_images/math/f09c5141e545b0b559b18c2ca3efcb6da6fc5e10.png" alt="B&gt;C-\varepsilon"/> or (<img class="math" src="_images/math/cf165d75b29214b94994629df6abc3a73c395def.png" alt="\overline{|B-C|&gt;\varepsilon}"/>
+and <img class="math" src="_images/math/b0f2ce02214a3478f247f9300ba373fa68a81e34.png" alt="|\eta|&gt;|\zeta| - \varepsilon"/>),</p>
+<blockquote>
+<div><div class="math">
+<p><img src="_images/math/1a5321cc80428d98a181f0cd38cd70d1f429d35a.png" alt="\mathbf{C} =
+\begin{pmatrix}
+-1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; -1 \\
+0 &amp; -1 &amp; 0 \\
+\end{pmatrix}."/></p>
+</div></div></blockquote>
+<ol class="arabic" start="3">
+<li><p class="first">If <img class="math" src="_images/math/b7d808a8ce94b199902a0b9decd3e81406ade293.png" alt="\xi\eta\zeta &gt; -\varepsilon"/>:</p>
+<p><img class="math" src="_images/math/08eb69bd26966cc7c9879aa3ada687ca1d39427d.png" alt="i=-1"/> if <img class="math" src="_images/math/4ce4f1a6b4435093189ffd03fbde14aedd7cbd58.png" alt="\xi&lt;-\varepsilon"/> else <img class="math" src="_images/math/50ed4b89a6aeb4814026a2be01bde8bd7d264b71.png" alt="i=1"/>,
+<img class="math" src="_images/math/94e6c73b2748b7eed68c23a21c76bc5644b9c7b7.png" alt="j=-1"/> if <img class="math" src="_images/math/a558751ad0230fc1858376ac67d974ad5f19cd85.png" alt="\eta&lt;-\varepsilon"/> else <img class="math" src="_images/math/5db39120014c34e1b098a3090ebd37598244d404.png" alt="j=1"/>, and
+<img class="math" src="_images/math/db97681e49591a8b330c0dfa9907ee21c2feca2b.png" alt="k=-1"/> if <img class="math" src="_images/math/0e75d7da36d45fe572d6b7853536355cc170bc53.png" alt="\zeta&lt;-\varepsilon"/> else <img class="math" src="_images/math/5ed8470bc717a49aafe4556c7e2c2e11ddc7b687.png" alt="k=1"/> for</p>
+<div class="math">
+<p><img src="_images/math/6cb875846608bb1e322fdf0f855821e91d6aa159.png" alt="\mathbf{C} =
+\begin{pmatrix}
+i &amp; 0 &amp; 0 \\
+0 &amp; j &amp; 0 \\
+0 &amp; 0 &amp; k \\
+\end{pmatrix}."/></p>
+</div></li>
+<li><p class="first">If <img class="math" src="_images/math/c02b3dc0a1997833de6cd5566356e559381df4f3.png" alt="\overline{\xi\eta\zeta &gt; \varepsilon}"/>:</p>
+<p><img class="math" src="_images/math/08eb69bd26966cc7c9879aa3ada687ca1d39427d.png" alt="i=-1"/> if <img class="math" src="_images/math/b7c6b043802bd706c926c6368caaa6cd1425490c.png" alt="\xi&lt;0"/> else <img class="math" src="_images/math/50ed4b89a6aeb4814026a2be01bde8bd7d264b71.png" alt="i=1"/>,
+<img class="math" src="_images/math/94e6c73b2748b7eed68c23a21c76bc5644b9c7b7.png" alt="j=-1"/> if <img class="math" src="_images/math/468677471be862e56e12babdb7d083ad8c847b5f.png" alt="\eta&lt;0"/> else <img class="math" src="_images/math/5db39120014c34e1b098a3090ebd37598244d404.png" alt="j=1"/>, and
+<img class="math" src="_images/math/db97681e49591a8b330c0dfa9907ee21c2feca2b.png" alt="k=-1"/> if <img class="math" src="_images/math/eca8fcecf72fce574ee07d68b685348a3b1595ba.png" alt="\zeta&lt;0"/> else <img class="math" src="_images/math/5ed8470bc717a49aafe4556c7e2c2e11ddc7b687.png" alt="k=1"/> for</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Niggli cell</a><ul>
+<li><a class="reference internal" href="#algorithm-to-determine-niggli-cell">Algorithm to determine Niggli cell</a><ul>
+<li><a class="reference internal" href="#reference">Reference</a></li>
+<li><a class="reference internal" href="#algorithm">Algorithm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li><a href="#">niggli 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2012, Atsushi Togo.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+    </div>
+  </body>
+</html>
