@@ -184,7 +184,7 @@ static int
 step1(void)
 {
   if (A > B + eps ||
-      fabs(A -B) < eps && fabs(xi) > fabs(eta) + eps) {
+      ! (fabs(A -B) > eps) && fabs(xi) > fabs(eta) + eps) {
     tmat[0] = 0,  tmat[1] = -1, tmat[2] = 0;
     tmat[3] = -1, tmat[4] = 0,  tmat[5] = 0;
     tmat[6] = 0,  tmat[7] = 0,  tmat[8] = -1;
@@ -198,7 +198,7 @@ static int
 step2(void)
 {
   if (B > C + eps ||
-      fabs(B - C) < eps && fabs(eta) > fabs(zeta) + eps) {
+      ! (fabs(B - C) > eps) && fabs(eta) > fabs(zeta) + eps) {
     tmat[0] = -1, tmat[1] = 0,  tmat[2] = 0;
     tmat[3] = 0,  tmat[4] = 0,  tmat[5] = -1;
     tmat[6] = 0,  tmat[7] = -1, tmat[8] = 0;
@@ -253,8 +253,8 @@ static int
 step5(void)
 {
   if (fabs(xi) > B + eps ||
-      fabs(B - xi) < eps && 2 * eta < zeta - eps ||
-      fabs(B + xi) < eps && zeta < -eps) {
+      ! (fabs(B - xi) > eps) && 2 * eta < zeta - eps ||
+      ! (fabs(B + xi) > eps) && zeta < -eps) {
     tmat[0] = 1, tmat[1] = 0, tmat[2] = 0;
     tmat[3] = 0, tmat[4] = 1, tmat[5] = 0;
     tmat[6] = 0, tmat[7] = 0, tmat[8] = 1;
@@ -270,8 +270,8 @@ static int
 step6(void)
 {
   if (fabs(eta) > A + eps ||
-      fabs(A - eta) < eps && 2 * xi < zeta - eps ||
-      fabs(A + eta) < eps && zeta < -eps) {
+      ! (fabs(A - eta) > eps) && 2 * xi < zeta - eps ||
+      ! (fabs(A + eta) > eps) && zeta < -eps) {
     tmat[0] = 1, tmat[1] = 0, tmat[2] = 0;
     tmat[3] = 0, tmat[4] = 1, tmat[5] = 0;
     tmat[6] = 0, tmat[7] = 0, tmat[8] = 1;
@@ -287,8 +287,8 @@ static int
 step7(void)
 {
   if (fabs(zeta) > A + eps ||
-      fabs(A - zeta) < eps && 2 * xi < eta - eps ||
-      fabs(A + zeta) < eps && eta < -eps) {
+      ! (fabs(A - zeta) > eps) && 2 * xi < eta - eps ||
+      ! (fabs(A + zeta) > eps) && eta < -eps) {
     tmat[0] = 1, tmat[1] = 0, tmat[2] = 0;
     tmat[3] = 0, tmat[4] = 1, tmat[5] = 0;
     tmat[6] = 0, tmat[7] = 0, tmat[8] = 1;
@@ -304,7 +304,7 @@ static int
 step8(void)
 {
   if (xi + eta + zeta + A + B < -eps ||
-      fabs(xi + eta + zeta + A + B) < eps && 2 * (A + eta) + zeta > eps) {
+      ! (fabs(xi + eta + zeta + A + B) > eps) && 2 * (A + eta) + zeta > eps) {
     tmat[0] = 1, tmat[1] = 0, tmat[2] = 1;
     tmat[3] = 0, tmat[4] = 1, tmat[5] = 1;
     tmat[6] = 0, tmat[7] = 0, tmat[8] = 1;
