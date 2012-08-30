@@ -1,21 +1,15 @@
 #include "niggli.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 int main(void) {
   int i, j;
-  ngl_matrix * matrix;
+  double *metric;
+  double lattice[3][3] = {
+    {4, 0, 0},
+    {1, 4, 0},
+    {0, 0, 3}
+  };
 
-  matrix = alloc_matrix(NGL_INT, 3, 3);
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++) {
-      ngl_set_matrix_INT(matrix, i, j, i * 3 + j);
-    }
-  }
-
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++) {
-      ngl_set_matrix_INT(matrix, i, j, i * 3 + j);
-    }
-  }
-
-  free_matrix(matrix);
+  reduce(lattice, 0);
 }

@@ -4,84 +4,85 @@
 #include <stdlib.h>
 #include "niggli.h"
 
-static int step1(int C[9])
+static double *
+get_parameters(const double *lattice);
+
+static double *
+get_transpose(const double *lattice);
+
+static double *
+get_metric(const double *lattice);
+
+static double *
+multiply_matrices(const double *A, const double *B);
+
+void
+reduce(double *lattice, const double symprec)
+{
+  double *params = get_parameters(lattice);
+
+  int i;
+  for (i = 0; i < 6; i++) {
+    printf("%f ", params[i]);
+  }
+  printf("\n");
+
+  free(params);
+}
+
+static double *
+get_parameters(const double *lattice)
+{
+  double *params = (double*)malloc(sizeof(double) * 6);
+  double *metric = get_metric(lattice);
+
+  params[0] = metric[0];
+  params[1] = metric[4];
+  params[2] = metric[8];
+  params[3] = metric[5] * 2;
+  params[4] = metric[2] * 2;
+  params[5] = metric[1] * 2;
+  return params;
+}
+
+static double *
+get_transpose(const double *lattice)
 {
   int i, j;
+  double *transpose = (double*)malloc(sizeof(double) * 9);
 
-  for (i = 0; i < 9; i++) {
-    C[i] = 0;
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      transpose[i * 3 + j] = lattice[j * 3 + i];
+    }
   }
+  return transpose;
 }
-		 
-ngl_matrix * alloc_matrix(const ngl_vtype ngl_vtype,
-			  const int m,
-			  const int n)
+
+static double *
+get_metric(const double *lattice)
 {
-  ngl_matrix * matrix;
+  double *metric;
+  double *lattice_T = get_transpose(lattice);
 
-  matrix = (ngl_matrix *)malloc(sizeof(ngl_matrix));
-  if (matrix == NULL) goto ret;
-  matrix->m = m;
-  matrix->n = n;
+  metric = multiply_matrices(lattice, lattice_T);
+  free(lattice_T);
+  return metric;
+}
 
-  switch (ngl_vtype) {
-  case NGL_INT:
-    matrix->ngl_vtype = ngl_vtype;
-    matrix->p = (void *)malloc(sizeof(double) * m * n);
-    break;
-  case NGL_DOUBLE:
-    matrix->ngl_vtype = ngl_vtype;
-    matrix->p = (void *)malloc(sizeof(int) * m * n);
-    break;
-  default:
-    free(matrix);
-    matrix = NULL;
-    goto ret;
+static double *
+multiply_matrices(const double *A, const double *B)
+{
+  int i, j, k;
+  double *C = (double*)malloc(sizeof(double) * 9);
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      C[i * 3 + j] = 0;
+      for (k = 0; k < 3; k++) {
+	C[i * 3 + j] += A[i * 3 + k] * B[k * 3 + j];
+      }
+    }
   }
-
-  if (matrix->p == NULL) {
-    free(matrix);
-    matrix = NULL;
-  }
-  
- ret:
-  return matrix;
-}
-
-void free_matrix(ngl_matrix * matrix) {
-  if (matrix == NULL) goto ret;
-  if (matrix->p == NULL) {
-    free(matrix);
-    goto ret;
-  }
-  free(matrix->p);
-  free(matrix);
- ret:
-  ;
-}
-
-void ngl_set_matrix_INT(ngl_matrix * matrix,
-			const int i,
-			const int j,
-			const int v)
-{
-  int * p;
-  p = (int *)matrix->p;
-  p[i * matrix->n + j] = v;
-}
-
-void ngl_set_matrix_DBL(ngl_matrix * matrix,
-			const int i,
-			const int j,
-			const double v)
-{
-  double * p;
-  p = (double *)matrix->p;
-  p[i * matrix->n + j] = v;
-}
-
-void reduce_lattice(double lattice[3][3],
-		    const double symprec)
-{
-  ;
+  return C;
 }
