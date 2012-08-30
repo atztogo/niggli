@@ -74,8 +74,8 @@ These values are stored in variables :math:`l, m, n` as follows.
 A1
 ~~
 
-If :math:`A>B - \varepsilon` or
-(:math:`|A-B|\le\varepsilon` and :math:`|\xi|>|\eta| - \varepsilon`),
+If :math:`A > B + \varepsilon` or
+(:math:`|A-B|\le\varepsilon` and :math:`|\xi|>|\eta| + \varepsilon`),
 
 .. math::
 
@@ -91,8 +91,8 @@ Run A0.
 A2
 ~~
 
-If :math:`B>C-\varepsilon` or (:math:`|B-C|\le\varepsilon`
-and :math:`|\eta|>|\zeta| - \varepsilon`),
+If :math:`B > C + \varepsilon` or (:math:`|B-C|\le\varepsilon`
+and :math:`|\eta|>|\zeta| + \varepsilon`),
 
 .. math::
 
@@ -154,8 +154,8 @@ Run A0.
 A5
 ~~
 
-If :math:`|\xi|>B + \varepsilon` or :math:`(|B - \xi| < \varepsilon, 2\eta< \zeta
--\varepsilon)` or :math:`(|B + \xi| < \varepsilon, \zeta< -\varepsilon)`:
+If :math:`|\xi|>B + \varepsilon` or :math:`(|B - \xi| < \varepsilon` and :math:`2\eta< \zeta
+-\varepsilon)` or :math:`(|B + \xi| < \varepsilon` and :math:`\zeta< -\varepsilon)`:
 
 .. math::
 
@@ -171,8 +171,9 @@ Go to A0.
 A6
 ~~
 
-If :math:`|\eta|>A + \varepsilon` or :math:`(|A - \eta| < \varepsilon,
-2\xi < \zeta -\varepsilon)` or :math:`(|A + \eta| < \varepsilon, \zeta< -\varepsilon)`:
+If :math:`|\eta|>A + \varepsilon` or :math:`(|A - \eta| < \varepsilon`
+and :math:`2\xi < \zeta -\varepsilon)` or :math:`(|A + \eta| <
+\varepsilon` and :math:`\zeta< -\varepsilon)`:
 
 .. math::
 
@@ -189,7 +190,7 @@ A7
 ~~
 
 If :math:`|\zeta|>A + \varepsilon` or :math:`(|A - \zeta| < \varepsilon,
-2\xi < \eta -\varepsilon)` or :math:`(|A + \zeta| < \varepsilon, \eta< -\varepsilon)`:
+2\xi < \eta -\varepsilon)` or :math:`(|A + \zeta| < \varepsilon` and :math:`\eta< -\varepsilon)`:
 
 .. math::
 
@@ -205,8 +206,8 @@ Go to A0.
 A8
 ~~
 
-If :math:`\xi + \eta + \zeta + A + B < -\varepsilon` or :math:`[\xi +
-\eta + \zeta + A + B = 0, 2(A + \eta) + \zeta > \varepsilon]`:
+If :math:`\xi + \eta + \zeta + A + B < -\varepsilon` or :math:`(|\xi +
+\eta + \zeta + A + B| < \varepsilon` and :math:`2(A + \eta) + \zeta > \varepsilon)`:
 
 .. math::
 
