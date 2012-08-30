@@ -86,7 +86,7 @@ If :math:`A>B - \varepsilon` or
    0 & 0 & -1 \\
    \end{pmatrix}.
 
-Go to A0.
+Run A0.
 
 A2
 ~~
@@ -123,7 +123,7 @@ If :math:`lmn = 1`:
    0 & 0 & k \\
    \end{pmatrix}.
 
-Go to A0.
+Run A0.
 
 A4
 ~~
@@ -149,7 +149,7 @@ If :math:`ijk=-1`, then overwrite :math:`i,j,k`:
    0 & 0 & k \\
    \end{pmatrix}.
 
-Go to A0.
+Run A0.
 
 A5
 ~~
