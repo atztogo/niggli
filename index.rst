@@ -46,7 +46,7 @@ doubled. Therefore the metric tensor :math:`\mathbf{G}` is represented as
    \begin{pmatrix}
    A & \zeta/2 & \eta/2 \\
    \zeta/2 & B & \xi/2 \\
-   \eta/2 & \xi/2 & B
+   \eta/2 & \xi/2 & C
    \end{pmatrix}.
    
 :math:`\xi`, :math:`\eta`, :math:`\zeta` are sorted by their ranges of
@@ -62,7 +62,7 @@ Right   0
 
 These values are stored in variables :math:`l, m, n` as follows.
 
-* Set initially :math:`l=m=l=0`.
+* Set initially :math:`l=m=n=0`.
 * If :math:`\xi<-\varepsilon`, :math:`l=-1`.
 * If :math:`\xi>\varepsilon`, :math:`l=1`. 
 * If :math:`\eta<-\varepsilon`, :math:`m=-1`.
