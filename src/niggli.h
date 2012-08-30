@@ -3,6 +3,6 @@
 #define __NIGGLI_H__
 
 void
-reduce(double *lattice, const double symprec);
+reduce(double *lattice, const double eps);
 
 #endif
