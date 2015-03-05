@@ -11,62 +11,28 @@ static int l, m, n;
 static double *tmat = NULL;
 static double *lattice = NULL;
 
-static void
-show(void);
+static void show(void);
+static void initialize(const double *lattice_, const double eps_);
+static void finalize(double *lattice_);
+static void reset(void);
+static void step0(void);
+static int step1(void);
+static int step2(void);
+static int step3(void);
+static int step4(void);
+static int step5(void);
+static int step6(void);
+static int step7(void);
+static int step8(void);
+static void set_parameters(void);
+static void set_angle_types(void);
+static double * get_transpose(const double *M);
+static double * get_metric(const double *M);
+static double * multiply_matrices(const double *A, const double *B);
 
-static void
-initialize(const double *lattice_, const double eps_);
-
-static void
-finalize(double *lattice_);
-
-static void
-reset(void);
-
-static void
-step0(void);
-
-static int
-step1(void);
-
-static int
-step2(void);
-
-static int
-step3(void);
-
-static int
-step4(void);
-
-static int
-step5(void);
-
-static int
-step6(void);
-
-static int
-step7(void);
-
-static int
-step8(void);
-
-static void
-set_parameters(void);
-
-static void
-set_angle_types(void);
-
-static double *
-get_transpose(const double *M);
-
-static double *
-get_metric(const double *M);
-
-static double *
-multiply_matrices(const double *A, const double *B);
-
-static void
-show(void)
+#ifdef NIGGLI_DEBUG
+#define debug_print(...) printf(__VA_ARGS__)
+static void debug_show(void)
 {
   int i;
   printf("%f %f %f %f %f %f\n", A, B, C, xi, eta, zeta);
@@ -75,69 +41,70 @@ show(void)
   for (i = 0; i < 3; i++) {
     printf("%f %f %f\n", lattice[i * 3], lattice[i * 3 + 1], lattice[i * 3 + 2]);
   }
-  
 }
+#else
+#define debug_print(...)
+#define debug_show(...)
+#endif
 
-void
-reduce(double *lattice_, const double eps_)
+void reduce(double *lattice_, const double eps_)
 {
   int i;
 
   initialize(lattice_, eps_);
   step0();
-  show();
   
   for (i = 0; i < 10; i++) {
     if (step1()) {
-      printf("step1\n");
-      show();
-      printf("\n");
+      debug_print("step1\n");
+      debug_show();
+      debug_print("\n");
     }
 
     if (step2()) {
-      printf("step2\n");
-      show();
-      printf("\n");
+      debug_print("step2\n");
+      debug_show();
+      debug_print("\n");
       continue;
     }
 
     if (step3()) {
-      printf("step3\n");
-      show();
-      printf("\n");
+      debug_print("step3\n");
+      debug_show();
+      debug_print("\n");
     }
 
     if (step4()) {
-      printf("step4\n");
-      show();
-      printf("\n");
+      debug_print("step4\n");
+      debug_show();
+      debug_print("\n");
     }
 
     if (step5()) {
-      printf("step5\n");
-      show();
-      printf("\n");
+      debug_print("step5\n");
+      debug_show();
+      debug_print("\n");
       continue;
     }
 
     if (step6()) {
-      printf("step6\n");
-      show();
-      printf("\n");
+      debug_print("step6\n");
+      debug_show();
+      debug_print("\n");
       continue;
     }
 
     if (step7()) {
-      printf("step7\n");
-      show();
-      printf("\n");
+      debug_print("step7\n");
+      debug_show();
+      debug_print("\n");
       continue;
     }
 
     if (step8()) {
-      printf("step7\n");
-      show();
-      printf("\n");
+      debug_print("step7\n");
+      debug_show();
+      debug_print("\n");
       continue;
     }
 
@@ -147,8 +114,7 @@ reduce(double *lattice_, const double eps_)
   finalize(lattice_);
 }
 
-static void
-initialize(const double *lattice_, const double eps_)
+static void initialize(const double *lattice_, const double eps_)
 {
   tmat = (double*)malloc(sizeof(double) * 9);
   eps = eps_;
@@ -156,32 +122,31 @@ initialize(const double *lattice_, const double eps_)
   memcpy(lattice, lattice_, sizeof(double) * 9);
 }
 
-static void
-finalize(double *lattice_)
+static void finalize(double *lattice_)
 {
   free(tmat);
   memcpy(lattice_, lattice, sizeof(double) * 9);
   free(lattice);
 }
 
-static void
-reset(void)
+static void reset(void)
 {
-  double *lat_tmp = multiply_matrices(lattice, tmat);
+  double *lat_tmp;
+  
+  lat_tmp = multiply_matrices(lattice, tmat);
+
   memcpy(lattice, lat_tmp, sizeof(double) * 9);
   step0();
   free(lat_tmp);
 }
 
-static void
-step0(void)
+static void step0(void)
 {
   set_parameters();
   set_angle_types();
 }
 
-static int
-step1(void)
+static int step1(void)
 {
   if (A > B + eps ||
       ! (fabs(A -B) > eps) && fabs(xi) > fabs(eta) + eps) {
@@ -194,8 +159,7 @@ step1(void)
   else {return 0;}
 }
 
-static int
-step2(void)
+static int step2(void)
 {
   if (B > C + eps ||
       ! (fabs(B - C) > eps) && fabs(eta) > fabs(zeta) + eps) {
@@ -208,8 +172,7 @@ step2(void)
   else {return 0;}
 }
 
-static int
-step3(void)
+static int step3(void)
 {
   int i, j, k;
   if (l * m * n == 1) {
@@ -225,8 +188,7 @@ step3(void)
   else {return 0;}
 }
 
-static int
-step4(void)
+static int step4(void)
 {
   int i, j, k;
   if (l * m * n == 0 || l * m * n == -1) {
@@ -249,8 +211,7 @@ step4(void)
   else {return 0;}
 }
 
-static int
-step5(void)
+static int step5(void)
 {
   if (fabs(xi) > B + eps ||
       ! (fabs(B - xi) > eps) && 2 * eta < zeta - eps ||
@@ -266,8 +227,7 @@ step5(void)
   else {return 0;}
 }
 
-static int
-step6(void)
+static int step6(void)
 {
   if (fabs(eta) > A + eps ||
       ! (fabs(A - eta) > eps) && 2 * xi < zeta - eps ||
@@ -283,8 +243,7 @@ step6(void)
   else {return 0;}
 }
 
-static int
-step7(void)
+static int step7(void)
 {
   if (fabs(zeta) > A + eps ||
       ! (fabs(A - zeta) > eps) && 2 * xi < eta - eps ||
@@ -300,8 +259,7 @@ step7(void)
   else {return 0;}
 }
 
-static int
-step8(void)
+static int step8(void)
 {
   if (xi + eta + zeta + A + B < -eps ||
       ! (fabs(xi + eta + zeta + A + B) > eps) && 2 * (A + eta) + zeta > eps) {
@@ -314,8 +272,7 @@ step8(void)
   else {return 0;}
 }
 
-static void
-set_angle_types(void)
+static void set_angle_types(void)
 {
   l = 0, m = 0, n = 0;
   if (xi < -eps) {l = -1;}
@@ -326,10 +283,11 @@ set_angle_types(void)
   if (zeta > eps) {n = 1;}
 }
 
-static void
-set_parameters(void)
+static void set_parameters(void)
 {
-  double *G = get_metric(lattice);
+  double *G;
+
+  G = get_metric(lattice);
 
   A = G[0];
   B = G[4];
@@ -341,12 +299,12 @@ set_parameters(void)
   free(G);
 }
 
-static double *
-get_transpose(const double *M)
+static double * get_transpose(const double *M)
 {
   int i, j;
-  double *M_T = (double*)malloc(sizeof(double) * 9);
+  double *M_T;
 
+  M_T = (double*)malloc(sizeof(double) * 9);
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
       M_T[i * 3 + j] = M[j * 3 + i];
@@ -355,24 +313,23 @@ get_transpose(const double *M)
   return M_T;
 }
 
-static double *
-get_metric(const double *M)
+static double * get_metric(const double *M)
 {
-  double *G;
-  double *M_T = get_transpose(M);
+  double *G, *M_T;
+
+  M_T = get_transpose(M);
 
   G = multiply_matrices(M_T, M);
-
   free(M_T);
   return G;
 }
 
-static double *
-multiply_matrices(const double *L, const double *R)
+static double * multiply_matrices(const double *L, const double *R)
 {
   int i, j, k;
-  double *M = (double*)malloc(sizeof(double) * 9);
+  double *M;
 
+  M = (double*)malloc(sizeof(double) * 9);
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
       M[i * 3 + j] = 0;
