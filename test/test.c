@@ -27,13 +27,13 @@ int main(void) {
 
   printf("Original\n");
   show(lattice_1);
-  reduce((double*)lattice_1, 0.001);
+  niggli_reduce((double*)lattice_1, 0.001);
   printf("Final\n");
   show(lattice_1);
 
   printf("Original\n");
   show(lattice_2);
-  reduce((double*)lattice_2, 0.001);
+  niggli_reduce((double*)lattice_2, 0.001);
   printf("Final\n");
   show(lattice_2);
   
