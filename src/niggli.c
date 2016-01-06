@@ -86,6 +86,24 @@ static void debug_show(void)
 #define warning_print(...)
 #endif
 
+/*--------------------------------------------*/
+/* Version: niggli-[major].[minor].[micro] */
+/*--------------------------------------------*/
+int niggli_get_major_version(void)
+{
+  return NIGGLI_MAJOR_VERSION;
+}
+
+int niggli_get_minor_version(void)
+{
+  return NIGGLI_MINOR_VERSION;
+}
+
+int niggli_get_micro_version(void)
+{
+  return NIGGLI_MICRO_VERSION;
+}
+
 /* return 0 if failed */
 int niggli_reduce(double *lattice_, const double eps_)
 {
@@ -145,7 +163,7 @@ int niggli_reduce(double *lattice_, const double eps_)
     }
 
     if (step8()) {
-      debug_print("step7\n");
+      debug_print("step8\n");
       debug_show();
       debug_print("\n");
       continue;
@@ -252,9 +270,9 @@ static int step4(void)
 {
   int i, j, k;
   if (l * m * n == 0 || l * m * n == -1) {
-    if (l == -1) {i = -1;} else {i = 1;}
-    if (m == -1) {j = -1;} else {j = 1;}
-    if (n == -1) {k = -1;} else {k = 1;}
+    if (l == 1) {i = -1;} else {i = 1;}
+    if (m == 1) {j = -1;} else {j = 1;}
+    if (n == 1) {k = -1;} else {k = 1;}
 
     if (i * j * k == -1) {
       if (l == 0) {i = -1;}
