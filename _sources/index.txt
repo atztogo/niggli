@@ -3,6 +3,54 @@
 Niggli cell
 ============
 
+Usage of the code
+------------------
+
+The code is written in C and a python wrapper is prepared in
+:file:`python` directory.
+The C code is used to compile with your code. Usual library interface
+is not prepared.
+The python code is used as a module. To use this, ``numpy`` is required.
+
+In both C and python codes, there are two input arguments, ``lattice``
+and ``eps``. ``lattice`` is a ``double`` array with nine elements, 
+
+.. math::
+
+   (a_x, b_x, c_x, a_y, b_y, c_y, a_z, b_z, c_z).
+
+In python, the input array will be fattened in the module. Therefore,
+e.g., the following :math:`3\times 3` shape of a numpy array or a
+python list is accepted:
+
+.. math::
+
+   \begin{pmatrix}
+   a_x & b_x & c_x \\
+   a_y & b_y & c_y \\
+   a_z & b_z & c_z \\
+   \end{pmatrix}.
+
+The ``double`` variable of ``eps`` is used as the tolerance
+parameter. The value should be much smaller than lattice parameters,
+e.g., 1e-8. How it works is shown in the :ref:`following section
+<niggli_algorithm>`.
+
+Test
+^^^^^
+
+The test is found in :file:`python` directory as a python code. A set
+of lattice parameters is found in :file:`lattices.dat` and the
+references, which are the reduced lattice parameter made in the
+version 0.1.0, are stored in :file:`reduced_lattices.dat`.
+
+Example
+^^^^^^^^
+
+An example is found in :file:`python` directory as a python code.
+
+.. _niggli_algorithm:
+
 Algorithm to determine Niggli cell
 -----------------------------------
 

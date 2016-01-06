@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
@@ -7,15 +6,15 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Niggli cell &mdash; niggli 0.1 documentation</title>
+    <title>Niggli cell &mdash; niggli 0.1.0 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '',
-        VERSION:     '0.1',
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -24,28 +23,63 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="niggli 0.1 documentation" href="#" /> 
+    <link rel="top" title="niggli 0.1.0 documentation" href="#" /> 
   </head>
-  <body>
-    <div class="related">
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li><a href="#">niggli 0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">niggli 0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="niggli-cell">
 <span id="id1"></span><h1>Niggli cell<a class="headerlink" href="#niggli-cell" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="usage-of-the-code">
+<h2>Usage of the code<a class="headerlink" href="#usage-of-the-code" title="Permalink to this headline">¶</a></h2>
+<p>The code is written in C and a python wrapper is prepared in
+<code class="file docutils literal"><span class="pre">python</span></code> directory.
+The C code is used to compile with your code. Usual library interface
+is not prepared.
+The python code is used as a module. To use this, <code class="docutils literal"><span class="pre">numpy</span></code> is required.</p>
+<p>In both C and python codes, there are two input arguments, <code class="docutils literal"><span class="pre">lattice</span></code>
+and <code class="docutils literal"><span class="pre">eps</span></code>. <code class="docutils literal"><span class="pre">lattice</span></code> is a <code class="docutils literal"><span class="pre">double</span></code> array with nine elements,</p>
+<div class="math">
+<p><img src="_images/math/c7fff541adb08c00fe9838557e921977b4f12d7f.png" alt="(a_x, b_x, c_x, a_y, b_y, c_y, a_z, b_z, c_z)."/></p>
+</div><p>In python, the input array will be fattened in the module. Therefore,
+e.g., the following <img class="math" src="_images/math/fde13f5c32bc5e589c07714364523a8aef4c7eb0.png" alt="3\times 3"/> shape of a numpy array or a
+python list is accepted:</p>
+<div class="math">
+<p><img src="_images/math/18a65d9c0414c3b7fa76f32fb591bbe4cc727848.png" alt="\begin{pmatrix}
+a_x &amp; b_x &amp; c_x \\
+a_y &amp; b_y &amp; c_y \\
+a_z &amp; b_z &amp; c_z \\
+\end{pmatrix}."/></p>
+</div><p>The <code class="docutils literal"><span class="pre">double</span></code> variable of <code class="docutils literal"><span class="pre">eps</span></code> is used as the tolerance
+parameter. The value should be much smaller than lattice parameters,
+e.g., 1e-8. How it works is shown in the <a class="reference internal" href="#niggli-algorithm"><span>following section</span></a>.</p>
+<div class="section" id="test">
+<h3>Test<a class="headerlink" href="#test" title="Permalink to this headline">¶</a></h3>
+<p>The test is found in <code class="file docutils literal"><span class="pre">python</span></code> directory as a python code. A set
+of lattice parameters is found in <code class="file docutils literal"><span class="pre">lattices.dat</span></code> and the
+references, which are the reduced lattice parameter made in the
+version 0.1.0, are stored in <code class="file docutils literal"><span class="pre">reduced_lattices.dat</span></code>.</p>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>An example is found in <code class="file docutils literal"><span class="pre">python</span></code> directory as a python code.</p>
+</div>
+</div>
 <div class="section" id="algorithm-to-determine-niggli-cell">
-<h2>Algorithm to determine Niggli cell<a class="headerlink" href="#algorithm-to-determine-niggli-cell" title="Permalink to this headline">¶</a></h2>
+<span id="niggli-algorithm"></span><h2>Algorithm to determine Niggli cell<a class="headerlink" href="#algorithm-to-determine-niggli-cell" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="reference">
 <h3>Reference<a class="headerlink" href="#reference" title="Permalink to this headline">¶</a></h3>
 <ol class="arabic simple">
@@ -64,22 +98,22 @@ Cryst., A60, 1-6 (2004)</li>
 <h4>A0<a class="headerlink" href="#a0" title="Permalink to this headline">¶</a></h4>
 <p>Define following variables as</p>
 <div class="math">
-<p><img src="_images/math/b9233bcc8d78c5a7765deb1025c24651388873cc.png" alt="&amp;A = \mathbf{a}\cdot\mathbf{a}\\
+<p><img src="_images/math/0856352e719a87cdf4bd30f9b1abf14891bfb629.png" alt="&amp;A = \mathbf{a}\cdot\mathbf{a}\\
 &amp;B = \mathbf{b}\cdot\mathbf{b}\\
 &amp;C = \mathbf{c}\cdot\mathbf{c}\\
 &amp;\xi=2\mathbf{b}\cdot\mathbf{c}\\
 &amp;\eta=2\mathbf{c}\cdot\mathbf{a}\\
 &amp;\zeta=2\mathbf{a}\cdot\mathbf{b}."/></p>
 </div><p>They are elements of metric tensor where the off-diagonal elements are
-doubled. Therefore the metric tensor <img class="math" src="_images/math/597c852cd8d4be79f01a80b6317d2096dd10c544.png" alt="\mathbf{G}"/> is represented as</p>
+doubled. Therefore the metric tensor <img class="math" src="_images/math/a950670fe1408c45e2a8fd5647f65906a2fd0b2a.png" alt="\mathbf{G}"/> is represented as</p>
 <div class="math">
-<p><img src="_images/math/9f809169f909cfc56946095b5606c3bce7f44c34.png" alt="\mathbf{G} =
+<p><img src="_images/math/18f99370841cf0196e7a566b11af3cee439e766f.png" alt="\mathbf{G} =
 \begin{pmatrix}
 A &amp; \zeta/2 &amp; \eta/2 \\
 \zeta/2 &amp; B &amp; \xi/2 \\
 \eta/2 &amp; \xi/2 &amp; C
 \end{pmatrix}."/></p>
-</div><p><img class="math" src="_images/math/ccfd1641d037d427d9dbf42cdd54b485a03eafe9.png" alt="\xi"/>, <img class="math" src="_images/math/03a45952f8115322d2879f7d090126f059757ba0.png" alt="\eta"/>, <img class="math" src="_images/math/fda38f45a64bbd4451aedeeb4584e01d91239172.png" alt="\zeta"/> are sorted by their ranges of
+</div><p><img class="math" src="_images/math/26bfd3bc4c5db78139d8897f9cfa5bba511a2f22.png" alt="\xi"/>, <img class="math" src="_images/math/9172efc523d7488d4c3ed299d0be813de01503b8.png" alt="\eta"/>, <img class="math" src="_images/math/1a534f73d7999c523b01512801d3bda18adee3b7.png" alt="\zeta"/> are sorted by their ranges of
 angles as shown below.</p>
 <table border="1" class="docutils">
 <colgroup>
@@ -103,23 +137,23 @@ angles as shown below.</p>
 </tr>
 </tbody>
 </table>
-<p>These values are stored in variables <img class="math" src="_images/math/870efb33135d4f926a4d345565b3d3c7ad919fba.png" alt="l, m, n"/> as follows.</p>
+<p>These values are stored in variables <img class="math" src="_images/math/8d15aaf4b016134787a4760683a91b9059f1c6f5.png" alt="l, m, n"/> as follows.</p>
 <ul class="simple">
-<li>Set initially <img class="math" src="_images/math/7a2ab7481b4c76e4a0a040646663c8acb20c0207.png" alt="l=m=n=0"/>.</li>
-<li>If <img class="math" src="_images/math/4ce4f1a6b4435093189ffd03fbde14aedd7cbd58.png" alt="\xi&lt;-\varepsilon"/>, <img class="math" src="_images/math/51eb7e374e8267b4ff2ca6ff9d68bbb7675c0e16.png" alt="l=-1"/>.</li>
-<li>If <img class="math" src="_images/math/1532ca997b57676f872c38756de68e035ffc9146.png" alt="\xi&gt;\varepsilon"/>, <img class="math" src="_images/math/bf7d802f36cb7350777c714781c597141d2d6796.png" alt="l=1"/>.</li>
-<li>If <img class="math" src="_images/math/a558751ad0230fc1858376ac67d974ad5f19cd85.png" alt="\eta&lt;-\varepsilon"/>, <img class="math" src="_images/math/4d4d288a994505787ed18fd2edcb86b6f85587d1.png" alt="m=-1"/>.</li>
-<li>If <img class="math" src="_images/math/437f2241c30a823dd5c27b45c754a89be4788981.png" alt="\eta&gt;\varepsilon"/>, <img class="math" src="_images/math/a4b5800f5ad040d308609190ef18a9e0ca08a9b0.png" alt="m=1"/>.</li>
-<li>If <img class="math" src="_images/math/0e75d7da36d45fe572d6b7853536355cc170bc53.png" alt="\zeta&lt;-\varepsilon"/>, <img class="math" src="_images/math/abffc6551fd537142e5ae0d6907dc57c4f42cd84.png" alt="n=-1"/>.</li>
-<li>If <img class="math" src="_images/math/e852872ccb1460477d833e93994cc4a28eb939e5.png" alt="\zeta&gt;\varepsilon"/>, <img class="math" src="_images/math/1d96ecc15129c5631ba4a2c6578e91e3d13e3baf.png" alt="n=1"/>.</li>
+<li>Set initially <img class="math" src="_images/math/20c9434983e9f4d733bb06928ff57a7946d2b0a2.png" alt="l=m=n=0"/>.</li>
+<li>If <img class="math" src="_images/math/efbf506bc17d27953fb8fd1bf6e4d9ac1a175532.png" alt="\xi&lt;-\varepsilon"/>, <img class="math" src="_images/math/5793fd42e9cbeb79095cd0df557d88cdec19502b.png" alt="l=-1"/>.</li>
+<li>If <img class="math" src="_images/math/0458bbf8c0633a9e49b74bdd302d2204e9803e54.png" alt="\xi&gt;\varepsilon"/>, <img class="math" src="_images/math/b1275c3b391ae1b7ff56d3529456ebaf103faca3.png" alt="l=1"/>.</li>
+<li>If <img class="math" src="_images/math/be51e1c142199375c47e08628785d02c25ee6cf4.png" alt="\eta&lt;-\varepsilon"/>, <img class="math" src="_images/math/6bef0ce9adfe4f385dbc44ad0ff02f050689412b.png" alt="m=-1"/>.</li>
+<li>If <img class="math" src="_images/math/6f8ee76854a30aedd87995a054d189caeffb0d46.png" alt="\eta&gt;\varepsilon"/>, <img class="math" src="_images/math/f821b8269d5572ef3cf71f11b921cb630794ab27.png" alt="m=1"/>.</li>
+<li>If <img class="math" src="_images/math/114a2b71698cd4f72d103fd918c20eeaa645e885.png" alt="\zeta&lt;-\varepsilon"/>, <img class="math" src="_images/math/f489e152da8f2bcdc0f0c7dfccf3e95214c6ac5d.png" alt="n=-1"/>.</li>
+<li>If <img class="math" src="_images/math/521bb1e5b02bab0f795ab39ca137e090adaf8ed7.png" alt="\zeta&gt;\varepsilon"/>, <img class="math" src="_images/math/163a19eac5182aaabe8bd9cc931dfa15e75a71dc.png" alt="n=1"/>.</li>
 </ul>
 </div>
 <div class="section" id="a1">
 <h4>A1<a class="headerlink" href="#a1" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/3c12e446bb7b35535445d5fa101ceea266354ea6.png" alt="A &gt; B + \varepsilon"/> or
-(<img class="math" src="_images/math/160cbffb4a84d6d7afc2cdda3308f05754202092.png" alt="\overline{|A-B|&gt;\varepsilon}"/> and <img class="math" src="_images/math/538d6317785fdfb2fbe03cf93723dd9967c85a03.png" alt="|\xi|&gt;|\eta| + \varepsilon"/>),</p>
+<p>If <img class="math" src="_images/math/b0c162a3459602d6ed245dee5691ed5d7857bf64.png" alt="A &gt; B + \varepsilon"/> or
+(<img class="math" src="_images/math/930bf0ac59a8186ab67fea5da3ab0066a28aec4f.png" alt="\overline{|A-B|&gt;\varepsilon}"/> and <img class="math" src="_images/math/534f95d56231c95d6d3486c783dbe103fe55c9d4.png" alt="|\xi|&gt;|\eta| + \varepsilon"/>),</p>
 <div class="math">
-<p><img src="_images/math/814ecfee09fc326e249a573f0c5bce876684bf67.png" alt="\mathbf{C} =
+<p><img src="_images/math/a2256ddec1f95b7dda023b04ffb1f4c8d3a3d68a.png" alt="\mathbf{C} =
 \begin{pmatrix}
 0 &amp; -1 &amp; 0 \\
 -1 &amp; 0 &amp; 0 \\
@@ -129,10 +163,10 @@ angles as shown below.</p>
 </div>
 <div class="section" id="a2">
 <h4>A2<a class="headerlink" href="#a2" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/e10bcfa3d83808bf9ca6b62b187bef9666a77845.png" alt="B &gt; C + \varepsilon"/> or (<img class="math" src="_images/math/cf165d75b29214b94994629df6abc3a73c395def.png" alt="\overline{|B-C|&gt;\varepsilon}"/>
-and <img class="math" src="_images/math/c7c82878f998b70a41493264346f88f26169bf4f.png" alt="|\eta|&gt;|\zeta| + \varepsilon"/>),</p>
+<p>If <img class="math" src="_images/math/edb7d08f760fdf734a7d7e62b1806dc0255e86af.png" alt="B &gt; C + \varepsilon"/> or (<img class="math" src="_images/math/8afe578632335b1e69be8b166f84bea8c036376d.png" alt="\overline{|B-C|&gt;\varepsilon}"/>
+and <img class="math" src="_images/math/78cd3a2afa753bbe0c7ec2316446b73e7b75b31c.png" alt="|\eta|&gt;|\zeta| + \varepsilon"/>),</p>
 <div class="math">
-<p><img src="_images/math/1a5321cc80428d98a181f0cd38cd70d1f429d35a.png" alt="\mathbf{C} =
+<p><img src="_images/math/744993174eaabc2565823cb3c98fd489a961a3ea.png" alt="\mathbf{C} =
 \begin{pmatrix}
 -1 &amp; 0 &amp; 0 \\
 0 &amp; 0 &amp; -1 \\
@@ -142,14 +176,14 @@ and <img class="math" src="_images/math/c7c82878f998b70a41493264346f88f26169bf4f
 </div>
 <div class="section" id="a3">
 <h4>A3<a class="headerlink" href="#a3" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/38f416b6427731abaa037b161e44452f6fd9db24.png" alt="lmn = 1"/>:</p>
+<p>If <img class="math" src="_images/math/6678f19c8ebc1fb6dcc18d330543e66895e88338.png" alt="lmn = 1"/>:</p>
 <ul class="simple">
-<li><img class="math" src="_images/math/08eb69bd26966cc7c9879aa3ada687ca1d39427d.png" alt="i=-1"/> if <img class="math" src="_images/math/51eb7e374e8267b4ff2ca6ff9d68bbb7675c0e16.png" alt="l=-1"/> else <img class="math" src="_images/math/50ed4b89a6aeb4814026a2be01bde8bd7d264b71.png" alt="i=1"/></li>
-<li><img class="math" src="_images/math/94e6c73b2748b7eed68c23a21c76bc5644b9c7b7.png" alt="j=-1"/> if <img class="math" src="_images/math/4d4d288a994505787ed18fd2edcb86b6f85587d1.png" alt="m=-1"/> else <img class="math" src="_images/math/5db39120014c34e1b098a3090ebd37598244d404.png" alt="j=1"/></li>
-<li><img class="math" src="_images/math/db97681e49591a8b330c0dfa9907ee21c2feca2b.png" alt="k=-1"/> if <img class="math" src="_images/math/abffc6551fd537142e5ae0d6907dc57c4f42cd84.png" alt="n=-1"/> else <img class="math" src="_images/math/5ed8470bc717a49aafe4556c7e2c2e11ddc7b687.png" alt="k=1"/></li>
+<li><img class="math" src="_images/math/b2e33f2ba26182875ac9af1eb383d9fd83e60726.png" alt="i=-1"/> if <img class="math" src="_images/math/5793fd42e9cbeb79095cd0df557d88cdec19502b.png" alt="l=-1"/> else <img class="math" src="_images/math/b402192fbf01e493ec772593d4b1eb55ed30f051.png" alt="i=1"/></li>
+<li><img class="math" src="_images/math/cb44717d9174fba51e8c7f9a4d2d0529edc2ef2f.png" alt="j=-1"/> if <img class="math" src="_images/math/6bef0ce9adfe4f385dbc44ad0ff02f050689412b.png" alt="m=-1"/> else <img class="math" src="_images/math/9bc9c7934723dfba7d38ebbbbe3e05d3274bece9.png" alt="j=1"/></li>
+<li><img class="math" src="_images/math/eb9758cdf5558af47dfe96759751a03e285dc9ff.png" alt="k=-1"/> if <img class="math" src="_images/math/f489e152da8f2bcdc0f0c7dfccf3e95214c6ac5d.png" alt="n=-1"/> else <img class="math" src="_images/math/56790044cc99e4ad006c49daa66fc7108184181b.png" alt="k=1"/></li>
 </ul>
 <div class="math">
-<p><img src="_images/math/6cb875846608bb1e322fdf0f855821e91d6aa159.png" alt="\mathbf{C} =
+<p><img src="_images/math/d45b2b70e3ab1b9f767ef2c02b66d94bd10f0273.png" alt="\mathbf{C} =
 \begin{pmatrix}
 i &amp; 0 &amp; 0 \\
 0 &amp; j &amp; 0 \\
@@ -159,20 +193,20 @@ i &amp; 0 &amp; 0 \\
 </div>
 <div class="section" id="a4">
 <h4>A4<a class="headerlink" href="#a4" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/fd1c38d10b04b4314137640a10f9cc1de3871aa4.png" alt="lmn = 0"/> or <img class="math" src="_images/math/8f0eacdb38c9c41929900f77adc01c1c87aff949.png" alt="lmn = -1"/>:</p>
+<p>If <img class="math" src="_images/math/89b5bee09a2e52dac3207c74bba9fbdfeca435a9.png" alt="lmn = 0"/> or <img class="math" src="_images/math/84cd1e2cb5891b4be4d1d8bd9d8d5b069e2e148d.png" alt="lmn = -1"/>:</p>
 <ul class="simple">
-<li><img class="math" src="_images/math/08eb69bd26966cc7c9879aa3ada687ca1d39427d.png" alt="i=-1"/> if <img class="math" src="_images/math/bf7d802f36cb7350777c714781c597141d2d6796.png" alt="l=1"/> else <img class="math" src="_images/math/50ed4b89a6aeb4814026a2be01bde8bd7d264b71.png" alt="i=1"/></li>
-<li><img class="math" src="_images/math/94e6c73b2748b7eed68c23a21c76bc5644b9c7b7.png" alt="j=-1"/> if <img class="math" src="_images/math/a4b5800f5ad040d308609190ef18a9e0ca08a9b0.png" alt="m=1"/> else <img class="math" src="_images/math/5db39120014c34e1b098a3090ebd37598244d404.png" alt="j=1"/></li>
-<li><img class="math" src="_images/math/db97681e49591a8b330c0dfa9907ee21c2feca2b.png" alt="k=-1"/> if <img class="math" src="_images/math/1d96ecc15129c5631ba4a2c6578e91e3d13e3baf.png" alt="n=1"/> else <img class="math" src="_images/math/5ed8470bc717a49aafe4556c7e2c2e11ddc7b687.png" alt="k=1"/></li>
+<li><img class="math" src="_images/math/b2e33f2ba26182875ac9af1eb383d9fd83e60726.png" alt="i=-1"/> if <img class="math" src="_images/math/b1275c3b391ae1b7ff56d3529456ebaf103faca3.png" alt="l=1"/> else <img class="math" src="_images/math/b402192fbf01e493ec772593d4b1eb55ed30f051.png" alt="i=1"/></li>
+<li><img class="math" src="_images/math/cb44717d9174fba51e8c7f9a4d2d0529edc2ef2f.png" alt="j=-1"/> if <img class="math" src="_images/math/f821b8269d5572ef3cf71f11b921cb630794ab27.png" alt="m=1"/> else <img class="math" src="_images/math/9bc9c7934723dfba7d38ebbbbe3e05d3274bece9.png" alt="j=1"/></li>
+<li><img class="math" src="_images/math/eb9758cdf5558af47dfe96759751a03e285dc9ff.png" alt="k=-1"/> if <img class="math" src="_images/math/163a19eac5182aaabe8bd9cc931dfa15e75a71dc.png" alt="n=1"/> else <img class="math" src="_images/math/56790044cc99e4ad006c49daa66fc7108184181b.png" alt="k=1"/></li>
 </ul>
-<p>If <img class="math" src="_images/math/9fdd2a6f1d11c1ff1bcb21d51314aaacf166c8ee.png" alt="ijk=-1"/>, then overwrite <img class="math" src="_images/math/a2d90b0ab7269c8f0c7109f1c7a3bdfa3a5fa49c.png" alt="i,j,k"/>:</p>
+<p>If <img class="math" src="_images/math/132aeaf077e590bcc2fe5e334c4ea19ff1a3b059.png" alt="ijk=-1"/>, then overwrite <img class="math" src="_images/math/eddd3f4d944b0e9455f8688b77aedc47bee7f30a.png" alt="i,j,k"/>:</p>
 <ul class="simple">
-<li><img class="math" src="_images/math/08eb69bd26966cc7c9879aa3ada687ca1d39427d.png" alt="i=-1"/> if <img class="math" src="_images/math/f5644099294a33bf6ea99f64e0eba8cb70bbc020.png" alt="l=0"/></li>
-<li><img class="math" src="_images/math/94e6c73b2748b7eed68c23a21c76bc5644b9c7b7.png" alt="j=-1"/> if <img class="math" src="_images/math/2e275495e7e44d279fb3e5051b3a63115e79ead5.png" alt="m=0"/></li>
-<li><img class="math" src="_images/math/db97681e49591a8b330c0dfa9907ee21c2feca2b.png" alt="k=-1"/> if <img class="math" src="_images/math/02349576cee613512cdf301a365f06c0760acab5.png" alt="n=0"/></li>
+<li><img class="math" src="_images/math/b2e33f2ba26182875ac9af1eb383d9fd83e60726.png" alt="i=-1"/> if <img class="math" src="_images/math/0da666abd8314ca395496380bf4b5e78b9bd191d.png" alt="l=0"/></li>
+<li><img class="math" src="_images/math/cb44717d9174fba51e8c7f9a4d2d0529edc2ef2f.png" alt="j=-1"/> if <img class="math" src="_images/math/d9b073da1b81c2291d6f5b5a8ff7ea3bddf2225f.png" alt="m=0"/></li>
+<li><img class="math" src="_images/math/eb9758cdf5558af47dfe96759751a03e285dc9ff.png" alt="k=-1"/> if <img class="math" src="_images/math/60b7f67a53ef96126e7d4f4b189af51ef701a35e.png" alt="n=0"/></li>
 </ul>
 <div class="math">
-<p><img src="_images/math/6cb875846608bb1e322fdf0f855821e91d6aa159.png" alt="\mathbf{C} =
+<p><img src="_images/math/d45b2b70e3ab1b9f767ef2c02b66d94bd10f0273.png" alt="\mathbf{C} =
 \begin{pmatrix}
 i &amp; 0 &amp; 0 \\
 0 &amp; j &amp; 0 \\
@@ -182,10 +216,10 @@ i &amp; 0 &amp; 0 \\
 </div>
 <div class="section" id="a5">
 <h4>A5<a class="headerlink" href="#a5" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/00609093ba793c0ce8c9fbdcc9bbcb1702c37308.png" alt="|\xi|&gt;B + \varepsilon"/> or <img class="math" src="_images/math/965209261b60122d352b5ef91474e5c327b5f3a2.png" alt="(\overline{|B - \xi| &gt; \varepsilon}"/> and <img class="math" src="_images/math/11a3d140578e21d651e14d19f114e9d8ad20f1f7.png" alt="2\eta&lt; \zeta
--\varepsilon)"/> or <img class="math" src="_images/math/f8e299bcd330504bd82485eef6529d3621a6cec9.png" alt="(\overline{|B + \xi| &gt; \varepsilon}"/> and <img class="math" src="_images/math/8f7fbcfe5e30ceef0c685fcac7685fbcee1a74eb.png" alt="\zeta&lt; -\varepsilon)"/>:</p>
+<p>If <img class="math" src="_images/math/d78a697bb30199089b590024e3fe356c2415bde6.png" alt="|\xi|&gt;B + \varepsilon"/> or <img class="math" src="_images/math/6ae3d974beaeaba74a6d6b9446ba912a32cfb804.png" alt="(\overline{|B - \xi| &gt; \varepsilon}"/> and <img class="math" src="_images/math/f54617d1f7f4c8aff682c9d71a7e435f3e647a1f.png" alt="2\eta&lt; \zeta
+-\varepsilon)"/> or <img class="math" src="_images/math/4f3aa81acec705271d28a55467fd4fc8c78fc29e.png" alt="(\overline{|B + \xi| &gt; \varepsilon}"/> and <img class="math" src="_images/math/c0277fc747253f1a2490194f7c39754c6078ff19.png" alt="\zeta&lt; -\varepsilon)"/>:</p>
 <div class="math">
-<p><img src="_images/math/ca292f5c1de679b613d92c4f0185196701e90599.png" alt="\mathbf{C} =
+<p><img src="_images/math/34c3b396938bbaa31e6832aa79f609094c518832.png" alt="\mathbf{C} =
 \begin{pmatrix}
 1 &amp; 0 &amp; 0 \\
 0 &amp; 1 &amp; -\mathrm{sign}(\xi) \\
@@ -195,11 +229,11 @@ i &amp; 0 &amp; 0 \\
 </div>
 <div class="section" id="a6">
 <h4>A6<a class="headerlink" href="#a6" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/665c67efc22e8999dbc2fc117517925419a35363.png" alt="|\eta|&gt;A + \varepsilon"/> or <img class="math" src="_images/math/32a3a406219dbba31e60cc82a5de3fe8174fdde2.png" alt="(\overline{|A - \eta| &gt; \varepsilon}"/>
-and <img class="math" src="_images/math/5586787fc09e2c965f9448cb0f6d01c2967403a8.png" alt="2\xi &lt; \zeta -\varepsilon)"/> or <img class="math" src="_images/math/cf75fa95841dd3d331b26ac09b6d204ef78a34ea.png" alt="(\overline{|A + \eta| &gt;
-\varepsilon}"/> and <img class="math" src="_images/math/8f7fbcfe5e30ceef0c685fcac7685fbcee1a74eb.png" alt="\zeta&lt; -\varepsilon)"/>:</p>
+<p>If <img class="math" src="_images/math/ba53fc12b9e610e1759268583883f27c5a0992c1.png" alt="|\eta|&gt;A + \varepsilon"/> or <img class="math" src="_images/math/29182bb12b23f92e59be5f045ef1c15cc9722b02.png" alt="(\overline{|A - \eta| &gt; \varepsilon}"/>
+and <img class="math" src="_images/math/962c9e18ecc633e0e7b7c027c41c6564255fd5f9.png" alt="2\xi &lt; \zeta -\varepsilon)"/> or <img class="math" src="_images/math/e2e6cb4444fd35b88677b29164dec18aed94e80d.png" alt="(\overline{|A + \eta| &gt;
+\varepsilon}"/> and <img class="math" src="_images/math/c0277fc747253f1a2490194f7c39754c6078ff19.png" alt="\zeta&lt; -\varepsilon)"/>:</p>
 <div class="math">
-<p><img src="_images/math/ff339453998f95e030f5e8c8134a647aff2a004f.png" alt="\mathbf{C} =
+<p><img src="_images/math/05ae284a3943572a78786009c194f1c7d6f82d48.png" alt="\mathbf{C} =
 \begin{pmatrix}
 1 &amp; 0 &amp; -\mathrm{sign}(\eta) \\
 0 &amp; 1 &amp; 0 \\
@@ -209,10 +243,10 @@ and <img class="math" src="_images/math/5586787fc09e2c965f9448cb0f6d01c2967403a8
 </div>
 <div class="section" id="a7">
 <h4>A7<a class="headerlink" href="#a7" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/fe1868ae92f51abb5181d300493abbbdee10ce33.png" alt="|\zeta|&gt;A + \varepsilon"/> or <img class="math" src="_images/math/9c89d399604b96d9c3d074c994edaca7a43ea508.png" alt="(\overline{|A - \zeta| &gt; \varepsilon},
-2\xi &lt; \eta -\varepsilon)"/> or <img class="math" src="_images/math/46b4bdf2184a208a84ef0de8b87cec5742670b7c.png" alt="(\overline{|A + \zeta| &gt; \varepsilon}"/> and <img class="math" src="_images/math/5af872508a3de7d0724d90c76e794061d20ba67a.png" alt="\eta&lt; -\varepsilon)"/>:</p>
+<p>If <img class="math" src="_images/math/a5da0fba71765cf84a7ff7cf020aae3c5f82c771.png" alt="|\zeta|&gt;A + \varepsilon"/> or <img class="math" src="_images/math/90fddc51d8aa339986e433d79c846b59f03a7ac6.png" alt="(\overline{|A - \zeta| &gt; \varepsilon},
+2\xi &lt; \eta -\varepsilon)"/> or <img class="math" src="_images/math/820572e920314280ec68fda5f99074eda74c440c.png" alt="(\overline{|A + \zeta| &gt; \varepsilon}"/> and <img class="math" src="_images/math/661f935ae12ba7bcbbb4b9138c16b3604f0b668d.png" alt="\eta&lt; -\varepsilon)"/>:</p>
 <div class="math">
-<p><img src="_images/math/5dc95036abef8e2373698dd5bf0e3763e0700858.png" alt="\mathbf{C} =
+<p><img src="_images/math/b774b9ed3378f4cb6c1dcac0b8d402dd2c29da96.png" alt="\mathbf{C} =
 \begin{pmatrix}
 1 &amp; -\mathrm{sign}(\zeta) &amp; 0 \\
 0 &amp; 1 &amp; 0 \\
@@ -222,10 +256,10 @@ and <img class="math" src="_images/math/5586787fc09e2c965f9448cb0f6d01c2967403a8
 </div>
 <div class="section" id="a8">
 <h4>A8<a class="headerlink" href="#a8" title="Permalink to this headline">¶</a></h4>
-<p>If <img class="math" src="_images/math/fc54a3176fb6a46d8dc8ab512eb8a1b9629b3f36.png" alt="\xi + \eta + \zeta + A + B &lt; -\varepsilon"/> or <img class="math" src="_images/math/fddd097ddfeaa2c8e2e15f70b895c42b48d7a9d6.png" alt="(\overline{|\xi +
-\eta + \zeta + A + B| &gt; \varepsilon}"/> and <img class="math" src="_images/math/22eb21582f58ecfcaea176e2b69bac0a117a8af7.png" alt="2(A + \eta) + \zeta &gt; \varepsilon)"/>:</p>
+<p>If <img class="math" src="_images/math/eab8987c07d659da2d561aa11c6fff7a93a298fe.png" alt="\xi + \eta + \zeta + A + B &lt; -\varepsilon"/> or <img class="math" src="_images/math/98c9d51e778b2110e8c8776c445f6f65144206ff.png" alt="(\overline{|\xi +
+\eta + \zeta + A + B| &gt; \varepsilon}"/> and <img class="math" src="_images/math/7e25b55e87d8ca2e3d01b62591fe467e00c24b55.png" alt="2(A + \eta) + \zeta &gt; \varepsilon)"/>:</p>
 <div class="math">
-<p><img src="_images/math/60e19cabca996cdb050c26767bbcf30e44568605.png" alt="\mathbf{C} =
+<p><img src="_images/math/28e27b98521650b7b4117108a0b28e97b8632ba6.png" alt="\mathbf{C} =
 \begin{pmatrix}
 1 &amp; 0 &amp; 1 \\
 0 &amp; 1 &amp; 1 \\
@@ -241,11 +275,16 @@ and <img class="math" src="_images/math/5586787fc09e2c965f9448cb0f6d01c2967403a8
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Niggli cell</a><ul>
+<li><a class="reference internal" href="#usage-of-the-code">Usage of the code</a><ul>
+<li><a class="reference internal" href="#test">Test</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#algorithm-to-determine-niggli-cell">Algorithm to determine Niggli cell</a><ul>
 <li><a class="reference internal" href="#reference">Reference</a></li>
 <li><a class="reference internal" href="#algorithm">Algorithm</a><ul>
@@ -266,12 +305,14 @@ and <img class="math" src="_images/math/5586787fc09e2c965f9448cb0f6d01c2967403a8
 </li>
 </ul>
 
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="_sources/index.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -288,18 +329,18 @@ and <img class="math" src="_images/math/5586787fc09e2c965f9448cb0f6d01c2967403a8
       </div>
       <div class="clearer"></div>
     </div>
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li><a href="#">niggli 0.1 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">niggli 0.1.0 documentation</a> &raquo;</li> 
       </ul>
     </div>
-    <div class="footer">
+    <div class="footer" role="contentinfo">
         &copy; Copyright 2012, Atsushi Togo.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.3.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.3.
     </div>
   </body>
 </html>
