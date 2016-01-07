@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Niggli cell &mdash; niggli 0.1.0 documentation</title>
+    <title>Niggli cell &mdash; niggli 0.1.1 documentation</title>
     
     <link rel="stylesheet" href="_static/nature.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.1.0',
+        VERSION:     '0.1.1',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="niggli 0.1.0 documentation" href="#" /> 
+    <link rel="top" title="niggli 0.1.1 documentation" href="#" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -32,7 +32,7 @@
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">niggli 0.1.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">niggli 0.1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -71,7 +71,7 @@ e.g., 1e-8. How it works is shown in the <a class="reference internal" href="#ni
 <p>The test is found in <code class="file docutils literal"><span class="pre">python</span></code> directory as a python code. A set
 of lattice parameters is found in <code class="file docutils literal"><span class="pre">lattices.dat</span></code> and the
 references, which are the reduced lattice parameter made in the
-version 0.1.0, are stored in <code class="file docutils literal"><span class="pre">reduced_lattices.dat</span></code>.</p>
+version 0.1.1, are stored in <code class="file docutils literal"><span class="pre">reduced_lattices.dat</span></code>.</p>
 </div>
 <div class="section" id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
@@ -94,8 +94,11 @@ Cryst., A60, 1-6 (2004)</li>
 </div>
 <div class="section" id="algorithm">
 <h3>Algorithm<a class="headerlink" href="#algorithm" title="Permalink to this headline">¶</a></h3>
-<div class="section" id="a0">
-<h4>A0<a class="headerlink" href="#a0" title="Permalink to this headline">¶</a></h4>
+<div class="section" id="update-variables">
+<h4>Update variables<a class="headerlink" href="#update-variables" title="Permalink to this headline">¶</a></h4>
+<p>The following variables used in this algorithm are initialized at the
+beginning of the algorithm and updated at the every end of
+A1-8 steps.</p>
 <p>Define following variables as</p>
 <div class="math">
 <p><img src="_images/math/0856352e719a87cdf4bd30f9b1abf14891bfb629.png" alt="&amp;A = \mathbf{a}\cdot\mathbf{a}\\
@@ -147,7 +150,11 @@ angles as shown below.</p>
 <li>If <img class="math" src="_images/math/114a2b71698cd4f72d103fd918c20eeaa645e885.png" alt="\zeta&lt;-\varepsilon"/>, <img class="math" src="_images/math/f489e152da8f2bcdc0f0c7dfccf3e95214c6ac5d.png" alt="n=-1"/>.</li>
 <li>If <img class="math" src="_images/math/521bb1e5b02bab0f795ab39ca137e090adaf8ed7.png" alt="\zeta&gt;\varepsilon"/>, <img class="math" src="_images/math/163a19eac5182aaabe8bd9cc931dfa15e75a71dc.png" alt="n=1"/>.</li>
 </ul>
-</div>
+<p><img class="math" src="_images/math/b7d320478b7d48a84f849b89c1937729579c671f.png" alt="\mathbf{C}"/> found in each step is the transformation matrix
+that is applied to basis vectors:</p>
+<div class="math">
+<p><img src="_images/math/d5c5a781cd15457c3306bae006ba68120021c051.png" alt="(\mathbf{a}', \mathbf{b}', \mathbf{c}') = (\mathbf{a}, \mathbf{b}, \mathbf{c})\mathbf{C}."/></p>
+</div></div>
 <div class="section" id="a1">
 <h4>A1<a class="headerlink" href="#a1" title="Permalink to this headline">¶</a></h4>
 <p>If <img class="math" src="_images/math/b0c162a3459602d6ed245dee5691ed5d7857bf64.png" alt="A &gt; B + \varepsilon"/> or
@@ -159,8 +166,7 @@ angles as shown below.</p>
 -1 &amp; 0 &amp; 0 \\
 0 &amp; 0 &amp; -1 \\
 \end{pmatrix}."/></p>
-</div><p>Run A0.</p>
-</div>
+</div></div>
 <div class="section" id="a2">
 <h4>A2<a class="headerlink" href="#a2" title="Permalink to this headline">¶</a></h4>
 <p>If <img class="math" src="_images/math/edb7d08f760fdf734a7d7e62b1806dc0255e86af.png" alt="B &gt; C + \varepsilon"/> or (<img class="math" src="_images/math/8afe578632335b1e69be8b166f84bea8c036376d.png" alt="\overline{|B-C|&gt;\varepsilon}"/>
@@ -172,7 +178,7 @@ and <img class="math" src="_images/math/78cd3a2afa753bbe0c7ec2316446b73e7b75b31c
 0 &amp; 0 &amp; -1 \\
 0 &amp; -1 &amp; 0 \\
 \end{pmatrix}."/></p>
-</div><p>Go to A0.</p>
+</div><p>Go to A1.</p>
 </div>
 <div class="section" id="a3">
 <h4>A3<a class="headerlink" href="#a3" title="Permalink to this headline">¶</a></h4>
@@ -189,21 +195,24 @@ i &amp; 0 &amp; 0 \\
 0 &amp; j &amp; 0 \\
 0 &amp; 0 &amp; k \\
 \end{pmatrix}."/></p>
-</div><p>Run A0.</p>
-</div>
+</div></div>
 <div class="section" id="a4">
 <h4>A4<a class="headerlink" href="#a4" title="Permalink to this headline">¶</a></h4>
+<p>If <img class="math" src="_images/math/5793fd42e9cbeb79095cd0df557d88cdec19502b.png" alt="l=-1"/>, <img class="math" src="_images/math/6bef0ce9adfe4f385dbc44ad0ff02f050689412b.png" alt="m=-1"/>, and <img class="math" src="_images/math/f489e152da8f2bcdc0f0c7dfccf3e95214c6ac5d.png" alt="n=-1"/>, do nothing in A4.</p>
 <p>If <img class="math" src="_images/math/89b5bee09a2e52dac3207c74bba9fbdfeca435a9.png" alt="lmn = 0"/> or <img class="math" src="_images/math/84cd1e2cb5891b4be4d1d8bd9d8d5b069e2e148d.png" alt="lmn = -1"/>:</p>
+<p>Set <img class="math" src="_images/math/279416bec4f92ba8bf3f20b8035013147ca42cb2.png" alt="i=j=k=1"/>. <img class="math" src="_images/math/2ede365ad144ab396916ec60458da03860803078.png" alt="r"/> is used as a reference to <img class="math" src="_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/>,
+<img class="math" src="_images/math/d32c78b759903e3f4bd4fd2ce0b86358f7500c5d.png" alt="j"/>, or <img class="math" src="_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/>, and is initially undefined.</p>
 <ul class="simple">
-<li><img class="math" src="_images/math/b2e33f2ba26182875ac9af1eb383d9fd83e60726.png" alt="i=-1"/> if <img class="math" src="_images/math/b1275c3b391ae1b7ff56d3529456ebaf103faca3.png" alt="l=1"/> else <img class="math" src="_images/math/b402192fbf01e493ec772593d4b1eb55ed30f051.png" alt="i=1"/></li>
-<li><img class="math" src="_images/math/cb44717d9174fba51e8c7f9a4d2d0529edc2ef2f.png" alt="j=-1"/> if <img class="math" src="_images/math/f821b8269d5572ef3cf71f11b921cb630794ab27.png" alt="m=1"/> else <img class="math" src="_images/math/9bc9c7934723dfba7d38ebbbbe3e05d3274bece9.png" alt="j=1"/></li>
-<li><img class="math" src="_images/math/eb9758cdf5558af47dfe96759751a03e285dc9ff.png" alt="k=-1"/> if <img class="math" src="_images/math/163a19eac5182aaabe8bd9cc931dfa15e75a71dc.png" alt="n=1"/> else <img class="math" src="_images/math/56790044cc99e4ad006c49daa66fc7108184181b.png" alt="k=1"/></li>
+<li><img class="math" src="_images/math/b2e33f2ba26182875ac9af1eb383d9fd83e60726.png" alt="i=-1"/> if <img class="math" src="_images/math/b1275c3b391ae1b7ff56d3529456ebaf103faca3.png" alt="l=1"/></li>
+<li><img class="math" src="_images/math/c1f23a43479a8ec4195a65482c24c19d9719cb00.png" alt="r\rightarrow i"/> if <img class="math" src="_images/math/0da666abd8314ca395496380bf4b5e78b9bd191d.png" alt="l=0"/></li>
+<li><img class="math" src="_images/math/cb44717d9174fba51e8c7f9a4d2d0529edc2ef2f.png" alt="j=-1"/> if <img class="math" src="_images/math/f821b8269d5572ef3cf71f11b921cb630794ab27.png" alt="m=1"/></li>
+<li><img class="math" src="_images/math/b52c928323a16b2313425bbc72dafc5e7a842dab.png" alt="r\rightarrow j"/> if <img class="math" src="_images/math/a5e14847aa4d030fd7c68e786fbe806cabaf9236.png" alt="j=0"/></li>
+<li><img class="math" src="_images/math/eb9758cdf5558af47dfe96759751a03e285dc9ff.png" alt="k=-1"/> if <img class="math" src="_images/math/163a19eac5182aaabe8bd9cc931dfa15e75a71dc.png" alt="n=1"/></li>
+<li><img class="math" src="_images/math/c15c0d74a7d84b5cfadbf9c190564466733b067e.png" alt="r\rightarrow k"/> if <img class="math" src="_images/math/d85fd3ecb4c7dd371fbf412352b67be347043fba.png" alt="k=0"/></li>
 </ul>
-<p>If <img class="math" src="_images/math/132aeaf077e590bcc2fe5e334c4ea19ff1a3b059.png" alt="ijk=-1"/>, then overwrite <img class="math" src="_images/math/eddd3f4d944b0e9455f8688b77aedc47bee7f30a.png" alt="i,j,k"/>:</p>
+<p>If <img class="math" src="_images/math/132aeaf077e590bcc2fe5e334c4ea19ff1a3b059.png" alt="ijk=-1"/>:</p>
 <ul class="simple">
-<li><img class="math" src="_images/math/b2e33f2ba26182875ac9af1eb383d9fd83e60726.png" alt="i=-1"/> if <img class="math" src="_images/math/0da666abd8314ca395496380bf4b5e78b9bd191d.png" alt="l=0"/></li>
-<li><img class="math" src="_images/math/cb44717d9174fba51e8c7f9a4d2d0529edc2ef2f.png" alt="j=-1"/> if <img class="math" src="_images/math/d9b073da1b81c2291d6f5b5a8ff7ea3bddf2225f.png" alt="m=0"/></li>
-<li><img class="math" src="_images/math/eb9758cdf5558af47dfe96759751a03e285dc9ff.png" alt="k=-1"/> if <img class="math" src="_images/math/60b7f67a53ef96126e7d4f4b189af51ef701a35e.png" alt="n=0"/></li>
+<li><img class="math" src="_images/math/a581f053bbfa5115f42c13094857cdd12a37ec49.png" alt="i"/>, <img class="math" src="_images/math/d32c78b759903e3f4bd4fd2ce0b86358f7500c5d.png" alt="j"/>, or <img class="math" src="_images/math/e9203da50e1059455123460d4e716c9c7f440cc3.png" alt="k"/> refered by <img class="math" src="_images/math/2ede365ad144ab396916ec60458da03860803078.png" alt="r"/> is set to <img class="math" src="_images/math/80d842c5b7aabdb4c23f00d2074915d876e294f2.png" alt="-1"/>.</li>
 </ul>
 <div class="math">
 <p><img src="_images/math/d45b2b70e3ab1b9f767ef2c02b66d94bd10f0273.png" alt="\mathbf{C} =
@@ -212,8 +221,7 @@ i &amp; 0 &amp; 0 \\
 0 &amp; j &amp; 0 \\
 0 &amp; 0 &amp; k \\
 \end{pmatrix}."/></p>
-</div><p>Run A0.</p>
-</div>
+</div></div>
 <div class="section" id="a5">
 <h4>A5<a class="headerlink" href="#a5" title="Permalink to this headline">¶</a></h4>
 <p>If <img class="math" src="_images/math/d78a697bb30199089b590024e3fe356c2415bde6.png" alt="|\xi|&gt;B + \varepsilon"/> or <img class="math" src="_images/math/6ae3d974beaeaba74a6d6b9446ba912a32cfb804.png" alt="(\overline{|B - \xi| &gt; \varepsilon}"/> and <img class="math" src="_images/math/f54617d1f7f4c8aff682c9d71a7e435f3e647a1f.png" alt="2\eta&lt; \zeta
@@ -225,7 +233,7 @@ i &amp; 0 &amp; 0 \\
 0 &amp; 1 &amp; -\mathrm{sign}(\xi) \\
 0 &amp; 0 &amp; 1 \\
 \end{pmatrix}."/></p>
-</div><p>Go to A0.</p>
+</div><p>Go to A1.</p>
 </div>
 <div class="section" id="a6">
 <h4>A6<a class="headerlink" href="#a6" title="Permalink to this headline">¶</a></h4>
@@ -239,7 +247,7 @@ and <img class="math" src="_images/math/962c9e18ecc633e0e7b7c027c41c6564255fd5f9
 0 &amp; 1 &amp; 0 \\
 0 &amp; 0 &amp; 1 \\
 \end{pmatrix}."/></p>
-</div><p>Go to A0.</p>
+</div><p>Go to A1.</p>
 </div>
 <div class="section" id="a7">
 <h4>A7<a class="headerlink" href="#a7" title="Permalink to this headline">¶</a></h4>
@@ -252,7 +260,7 @@ and <img class="math" src="_images/math/962c9e18ecc633e0e7b7c027c41c6564255fd5f9
 0 &amp; 1 &amp; 0 \\
 0 &amp; 0 &amp; 1 \\
 \end{pmatrix}."/></p>
-</div><p>Go to A0.</p>
+</div><p>Go to A1.</p>
 </div>
 <div class="section" id="a8">
 <h4>A8<a class="headerlink" href="#a8" title="Permalink to this headline">¶</a></h4>
@@ -265,7 +273,7 @@ and <img class="math" src="_images/math/962c9e18ecc633e0e7b7c027c41c6564255fd5f9
 0 &amp; 1 &amp; 1 \\
 0 &amp; 0 &amp; 1 \\
 \end{pmatrix}."/></p>
-</div><p>Go to A0.</p>
+</div><p>Go to A1.</p>
 </div>
 </div>
 </div>
@@ -288,7 +296,7 @@ and <img class="math" src="_images/math/962c9e18ecc633e0e7b7c027c41c6564255fd5f9
 <li><a class="reference internal" href="#algorithm-to-determine-niggli-cell">Algorithm to determine Niggli cell</a><ul>
 <li><a class="reference internal" href="#reference">Reference</a></li>
 <li><a class="reference internal" href="#algorithm">Algorithm</a><ul>
-<li><a class="reference internal" href="#a0">A0</a></li>
+<li><a class="reference internal" href="#update-variables">Update variables</a></li>
 <li><a class="reference internal" href="#a1">A1</a></li>
 <li><a class="reference internal" href="#a2">A2</a></li>
 <li><a class="reference internal" href="#a3">A3</a></li>
@@ -335,7 +343,7 @@ and <img class="math" src="_images/math/962c9e18ecc633e0e7b7c027c41c6564255fd5f9
         <li class="right" style="margin-right: 10px">
           <a href="genindex.html" title="General Index"
              >index</a></li>
-        <li class="nav-item nav-item-0"><a href="#">niggli 0.1.0 documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">niggli 0.1.1 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
