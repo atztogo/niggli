@@ -13,6 +13,25 @@ def get_angles(lattice):
     gamma = np.arccos(np.vdot(lattice[:,0], lattice[:,1]) / a / b)
     return np.array([alpha, beta, gamma]) / np.pi * 180
 
+def lattice2cartesian(a, b, c, alpha, beta, gamma):
+    """
+    The conversion refers the wikipedia,
+    http://en.wikipedia.org/wiki/Fractional_coordinates
+    """
+    cg = np.cos(gamma / 180 * np.pi)
+    cb = np.cos(beta / 180 * np.pi)
+    ca = np.cos(alpha / 180 * np.pi)
+    sg = np.sin(gamma / 180 * np.pi)
+    L = np.zeros((3, 3))
+    L[0, 0] = a
+    L[0, 1] = b * cg
+    L[0, 2] = c * cb
+    L[1, 1] = b * sg
+    L[1, 2] = c * (ca - cb * cg) / sg
+    L[2, 2] = c * np.sqrt(1 - ca ** 2 - cb ** 2 - cg ** 2 +
+                          2 * ca * cb * cg) / sg
+    return L
+
 def show_lattice(lattice):
     for v, axis in zip(lattice.T, ('a', 'b', 'c')):
         print("%s %s" % (axis, v))
@@ -20,18 +39,21 @@ def show_lattice(lattice):
     print("Angles %s" % np.array(get_angles(lattice)))
     print("V %f" % np.linalg.det(lattice))
 
-lattice_str = """
- -3.0399837305035393   0.2689430591255473  -0.3854696358687387
-  0.5019497901415106   1.1955705707455986   9.1769697990207320
-  2.3242680883263844   8.9135745201241541   0.1859370039210433
-"""
 
-print("Version %d.%d.%d" % get_version())
+if __name__ == '__main__':
+    print("Version %d.%d.%d" % get_version())
 
-print("Original:")
-lattice = np.reshape([float(x) for x in lattice_str.strip().split()], (3, 3)).T
-show_lattice(lattice)
+    # Example in the paper by Krivy & Gruber 1976 
+    a, b, c = np.sqrt([9, 27, 4])
+    alpha = np.arccos(-5 / (2 * b * c)) / np.pi * 180
+    beta = np.arccos(-4 / (2 * a * c)) / np.pi * 180
+    gamma = np.arccos(-22 / (2 * a * b)) / np.pi * 180
 
-print("Reduced:")
-reduced_lattice = niggli_reduce(lattice, eps=1e-5)
-show_lattice(reduced_lattice)
+    lattice = lattice2cartesian(a, b, c, alpha, beta, gamma)
+    reduced_lattice = niggli_reduce(lattice, eps=1e-5)
+    
+    print("Original:")
+    show_lattice(lattice)
+    
+    print("Reduced:")
+    show_lattice(reduced_lattice)
