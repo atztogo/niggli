@@ -32,16 +32,20 @@ class TestNiggli(unittest.TestCase):
         for i, (input_lattice, reference_lattice) in enumerate(
                 zip(self._input_lattices, self._reference_lattices)):
             reduced_lattice = niggli_reduce(input_lattice)
+            # self._show_lattice(i, reduced_lattice)
             self.assertTrue(
                 np.allclose(reduced_lattice, reference_lattice),
                 msg="\n".join(
                     ["# %d" % (i + 1),
                      "Input lattice",
                      "%s" % input_lattice,
+                     " angles: %s" % np.array(get_angles(input_lattice)),
                      "Reduced lattice in reference data",
                      "%s" % reference_lattice,
+                     " angles: %s" % np.array(get_angles(reference_lattice)),
                      "Reduced lattice",
-                     "%s" % reduced_lattice]))
+                     "%s" % reduced_lattice,
+                     " angles: %s" % np.array(get_angles(reduced_lattice))]))
 
     def _read_file(self, filename):
         all_lattices = []
@@ -55,6 +59,11 @@ class TestNiggli(unittest.TestCase):
                     all_lattices.append(np.transpose(lattice))
                     lattice = []
         return all_lattices
+
+    def _show_lattice(self, i, lattice):
+        print("# %d" % (i + 1))
+        for v in lattice.T:
+            print(" ".join(["%20.16f" % x for x in v]))        
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestNiggli)
