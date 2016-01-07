@@ -39,6 +39,21 @@
 #define NIGGLI_MINOR_VERSION 1
 #define NIGGLI_MICRO_VERSION 0
 
+typedef struct {
+  double A;
+  double B;
+  double C;
+  double eta;
+  double xi;
+  double zeta;
+  double eps;
+  int l;
+  int m;
+  int n;
+  double *tmat;
+  double *lattice;
+} NiggliParams;
+
 int niggli_get_major_version(void);
 int niggli_get_minor_version(void);
 int niggli_get_micro_version(void);
