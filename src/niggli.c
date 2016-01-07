@@ -40,6 +40,21 @@
 
 #define NIGGLI_MAX_NUM_LOOP 100
 
+typedef struct {
+  double A;
+  double B;
+  double C;
+  double eta;
+  double xi;
+  double zeta;
+  double eps;
+  int l;
+  int m;
+  int n;
+  double *tmat;
+  double *lattice;
+} NiggliParams;
+
 static NiggliParams * initialize(const double *lattice_, const double eps_);
 static void finalize(double *lattice_, NiggliParams *p);
 static int reset(NiggliParams *p);
@@ -116,15 +131,17 @@ int niggli_reduce(double *lattice_, const double eps_)
 				      step5, step6, step7, step8};
 
   p = NULL;
+  succeeded = 0;
 
   if ((p = initialize(lattice_, eps_)) == NULL) {
     return 0;
   }
 
   /* Step 0 */
-  set_parameters(p);
+  if (! set_parameters(p)) {
+    goto ret;
+  }
 
-  succeeded = 0;
   for (i = 0; i < NIGGLI_MAX_NUM_LOOP; i++) {
     for (j = 0; j < 8; j++) {
       if ((*steps[j])(p)) {
@@ -140,6 +157,8 @@ int niggli_reduce(double *lattice_, const double eps_)
   }
 
   debug_show(-1, p);
+
+ ret:
   finalize(lattice_, p);
   return succeeded;
 }
