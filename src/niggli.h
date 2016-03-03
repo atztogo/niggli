@@ -37,7 +37,7 @@
 
 #define NIGGLI_MAJOR_VERSION 0
 #define NIGGLI_MINOR_VERSION 1
-#define NIGGLI_MICRO_VERSION 1
+#define NIGGLI_MICRO_VERSION 2
 
 int niggli_get_major_version(void);
 int niggli_get_minor_version(void);
