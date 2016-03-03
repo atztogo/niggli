@@ -42,7 +42,7 @@ Test
 The test is found in :file:`python` directory as a python code. A set
 of lattice parameters is found in :file:`lattices.dat` and the
 references, which are the reduced lattice parameter made in the
-version 0.1.0, are stored in :file:`reduced_lattices.dat`.
+version 0.1.1, are stored in :file:`reduced_lattices.dat`.
 
 Example
 ^^^^^^^^
@@ -71,8 +71,12 @@ Reference
 Algorithm
 ^^^^^^^^^^
 
-A0
-~~
+Update variables
+~~~~~~~~~~~~~~~~~~
+
+The following variables used in this algorithm are initialized at the
+beginning of the algorithm and updated at the every end of
+A1-8 steps.
 
 Define following variables as
 
@@ -118,6 +122,12 @@ These values are stored in variables :math:`l, m, n` as follows.
 * If :math:`\zeta<-\varepsilon`, :math:`n=-1`.
 * If :math:`\zeta>\varepsilon`, :math:`n=1`.
 
+:math:`\mathbf{C}` found in each step is the transformation matrix
+that is applied to basis vectors:
+
+.. math::
+
+   (\mathbf{a}', \mathbf{b}', \mathbf{c}') = (\mathbf{a}, \mathbf{b}, \mathbf{c})\mathbf{C}.
 
 A1
 ~~
@@ -134,8 +144,6 @@ If :math:`A > B + \varepsilon` or
    0 & 0 & -1 \\
    \end{pmatrix}.
 
-Run A0.
-
 A2
 ~~
 
@@ -151,7 +159,7 @@ and :math:`|\eta|>|\zeta| + \varepsilon`),
    0 & -1 & 0 \\
    \end{pmatrix}.
 
-Go to A0.
+Go to A1.
 
 A3
 ~~
@@ -171,22 +179,26 @@ If :math:`lmn = 1`:
    0 & 0 & k \\
    \end{pmatrix}.
 
-Run A0.
-
 A4
 ~~
 
+If :math:`l=-1`, :math:`m=-1`, and :math:`n=-1`, do nothing in A4.
+
 If :math:`lmn = 0` or :math:`lmn = -1`:
 
-* :math:`i=-1` if :math:`l=1` else :math:`i=1`
-* :math:`j=-1` if :math:`m=1` else :math:`j=1`
-* :math:`k=-1` if :math:`n=1` else :math:`k=1`
+Set :math:`i=j=k=1`. :math:`r` is used as a reference to :math:`i`,
+:math:`j`, or :math:`k`, and is initially undefined.
 
-If :math:`ijk=-1`, then overwrite :math:`i,j,k`:
+* :math:`i=-1` if :math:`l=1`
+* :math:`r\rightarrow i` if :math:`l=0`
+* :math:`j=-1` if :math:`m=1`
+* :math:`r\rightarrow j` if :math:`j=0`
+* :math:`k=-1` if :math:`n=1`
+* :math:`r\rightarrow k` if :math:`k=0`
 
-* :math:`i=-1` if :math:`l=0`
-* :math:`j=-1` if :math:`m=0`
-* :math:`k=-1` if :math:`n=0`
+If :math:`ijk=-1`:
+
+*  :math:`i`, :math:`j`, or :math:`k` refered by :math:`r` is set to :math:`-1`.
 
 .. math::
 
@@ -196,8 +208,6 @@ If :math:`ijk=-1`, then overwrite :math:`i,j,k`:
    0 & j & 0 \\
    0 & 0 & k \\
    \end{pmatrix}.
-
-Run A0.
 
 A5
 ~~
@@ -214,7 +224,7 @@ If :math:`|\xi|>B + \varepsilon` or :math:`(\overline{|B - \xi| > \varepsilon}` 
    0 & 0 & 1 \\
    \end{pmatrix}.
 
-Go to A0.
+Go to A1.
 
 A6
 ~~
@@ -232,7 +242,7 @@ and :math:`2\xi < \zeta -\varepsilon)` or :math:`(\overline{|A + \eta| >
    0 & 0 & 1 \\
    \end{pmatrix}.
 
-Go to A0.
+Go to A1.
 
 A7
 ~~
@@ -249,7 +259,7 @@ If :math:`|\zeta|>A + \varepsilon` or :math:`(\overline{|A - \zeta| > \varepsilo
    0 & 0 & 1 \\
    \end{pmatrix}.
 
-Go to A0.
+Go to A1.
 
 A8
 ~~
@@ -266,4 +276,4 @@ If :math:`\xi + \eta + \zeta + A + B < -\varepsilon` or :math:`(\overline{|\xi +
    0 & 0 & 1 \\
    \end{pmatrix}.
 
-Go to A0.
+Go to A1.

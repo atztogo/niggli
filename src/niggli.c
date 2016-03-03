@@ -146,7 +146,7 @@ int niggli_reduce(double *lattice_, const double eps_)
     for (j = 0; j < 8; j++) {
       if ((*steps[j])(p)) {
 	debug_show(j + 1, p);
-	reset(p);
+	if (! reset(p)) {goto ret;}
 	if (j == 1 || j == 4 || j == 5 || j == 6 || j == 7) {break;}
       }
     }
