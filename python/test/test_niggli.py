@@ -1,23 +1,31 @@
+import os
 import unittest
 import numpy as np
 from niggli import niggli_reduce
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+
 def get_lattice_parameters(lattice):
     return np.sqrt(np.dot(lattice.T, lattice).diagonal())
 
+
 def get_angles(lattice):
     a, b, c = get_lattice_parameters(lattice)
-    alpha = np.arccos(np.vdot(lattice[:,1], lattice[:,2]) / b / c)
-    beta  = np.arccos(np.vdot(lattice[:,2], lattice[:,0]) / c / a)
-    gamma = np.arccos(np.vdot(lattice[:,0], lattice[:,1]) / a / b)
+    alpha = np.arccos(np.vdot(lattice[:, 1], lattice[:, 2]) / b / c)
+    beta = np.arccos(np.vdot(lattice[:, 2], lattice[:, 0]) / c / a)
+    gamma = np.arccos(np.vdot(lattice[:, 0], lattice[:, 1]) / a / b)
     return np.array([alpha, beta, gamma]) / np.pi * 180
+
 
 class TestNiggli(unittest.TestCase):
 
     def setUp(self):
-        self._input_lattices = self._read_file("lattices.dat")
-        self._reference_lattices = self._read_file("reduced_lattices.dat")
-    
+        self._input_lattices = self._read_file(
+            os.path.join(current_dir, "lattices.dat"))
+        self._reference_lattices = self._read_file(
+            os.path.join(current_dir, "reduced_lattices.dat"))
+
     def tearDown(self):
         pass
 
@@ -27,12 +35,13 @@ class TestNiggli(unittest.TestCase):
             self.assertTrue((angles > 90 - 1e-3).all() or
                             (angles < 90 + 1e-3).all(),
                             msg=("%d %s" % (i + 1, angles)))
-    
+
     def test_niggli_reduce(self):
         for i, (input_lattice, reference_lattice) in enumerate(
                 zip(self._input_lattices, self._reference_lattices)):
             reduced_lattice = niggli_reduce(input_lattice)
             # self._show_lattice(i, reduced_lattice)
+
             self.assertTrue(
                 np.allclose(reduced_lattice, reference_lattice),
                 msg="\n".join(
@@ -63,7 +72,8 @@ class TestNiggli(unittest.TestCase):
     def _show_lattice(self, i, lattice):
         print("# %d" % (i + 1))
         for v in lattice.T:
-            print(" ".join(["%20.16f" % x for x in v]))        
+            print(" ".join(["%20.16f" % x for x in v]))
+
 
 if __name__ == '__main__':
     suite = unittest.TestLoader().loadTestsFromTestCase(TestNiggli)
