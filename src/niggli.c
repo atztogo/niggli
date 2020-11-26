@@ -38,7 +38,7 @@
 #include <string.h>
 #include "niggli.h"
 
-#define NIGGLI_MAX_NUM_LOOP 100
+#define NIGGLI_MAX_NUM_LOOP 10000
 
 typedef struct {
   double A;
@@ -51,8 +51,10 @@ typedef struct {
   int l;
   int m;
   int n;
-  double *tmat;
+  long *tmat;
+  long *total_tmat;
   double *lattice;
+  double *lattice_orig;
 } NiggliParams;
 
 static NiggliParams * initialize(const double *lattice_, const double eps_);
@@ -70,7 +72,9 @@ static int set_parameters(NiggliParams *p);
 static void set_angle_types(NiggliParams *p);
 static double * get_transpose(const double *M);
 static double * get_metric(const double *M);
-static double * multiply_matrices(const double *A, const double *B);
+static double * multiply_matrices(const double *L, const double *R);
+static int update_lattice(NiggliParams *p);
+static int update_total_tmat(NiggliParams *p);
 
 #ifdef NIGGLI_DEBUG
 #define debug_print(...) printf(__VA_ARGS__)
@@ -89,7 +93,7 @@ static void debug_show(const int j, const NiggliParams *p)
   /* printf("%d %d %d\n", p->l, p->m, p->n); */
   /* for (i = 0; i < 3; i++) { */
   /*   printf("%f %f %f\n", */
-  /* 	   p->lattice[i * 3], p->lattice[i * 3 + 1], p->lattice[i * 3 + 2]); */
+  /*       p->lattice[i * 3], p->lattice[i * 3 + 1], p->lattice[i * 3 + 2]); */
   /* } */
 }
 #else
@@ -128,7 +132,7 @@ int niggli_reduce(double *lattice_, const double eps_)
   int i, j, succeeded;
   NiggliParams *p;
   int (*steps[8])(NiggliParams *p) = {step1, step2, step3, step4,
-				      step5, step6, step7, step8};
+                                      step5, step6, step7, step8};
 
   p = NULL;
   succeeded = 0;
@@ -144,10 +148,10 @@ int niggli_reduce(double *lattice_, const double eps_)
 
   for (i = 0; i < NIGGLI_MAX_NUM_LOOP; i++) {
     for (j = 0; j < 8; j++) {
+      debug_show(j + 1, p);
       if ((*steps[j])(p)) {
-	debug_show(j + 1, p);
-	if (! reset(p)) {goto ret;}
-	if (j == 1 || j == 4 || j == 5 || j == 6 || j == 7) {break;}
+        if (! reset(p)) {goto ret;}
+        if (j == 1 || j == 4 || j == 5 || j == 6 || j == 7) {break;}
       }
     }
     if (j == 8) {
@@ -185,17 +189,18 @@ static NiggliParams * initialize(const double *lattice_, const double eps_)
   p->m = 0;
   p->n = 0;
   p->tmat = NULL;
+  p->total_tmat = NULL;
   p->lattice = NULL;
+  p->lattice_orig = NULL;
 
-  if ((p->tmat = (double*)malloc(sizeof(double) * 9)) == NULL) {
+  if ((p->tmat = (long*)malloc(sizeof(long) * 9)) == NULL) {
     warning_print("niggli: Memory could not be allocated.");
     free(p);
     p = NULL;
     return NULL;
   }
 
-  p->eps = eps_;
-  if ((p->lattice = (double*)malloc(sizeof(double) * 9)) == NULL) {
+  if ((p->total_tmat = (long*)malloc(sizeof(long) * 9)) == NULL) {
     warning_print("niggli: Memory could not be allocated.");
     free(p->tmat);
     p->tmat = NULL;
@@ -203,16 +208,55 @@ static NiggliParams * initialize(const double *lattice_, const double eps_)
     p = NULL;
     return NULL;
   }
-  
+
+  if ((p->lattice = (double*)malloc(sizeof(double) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    free(p->total_tmat);
+    p->total_tmat = NULL;
+    free(p->tmat);
+    p->tmat = NULL;
+    free(p);
+    p = NULL;
+    return NULL;
+  }
+
+  if ((p->lattice_orig = (double*)malloc(sizeof(double) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    free(p->lattice);
+    p->lattice = NULL;
+    free(p->total_tmat);
+    p->total_tmat = NULL;
+    free(p->tmat);
+    p->tmat = NULL;
+    free(p);
+    p = NULL;
+    return NULL;
+  }
+
+  p->eps = eps_;
   memcpy(p->lattice, lattice_, sizeof(double) * 9);
+  memcpy(p->lattice_orig, lattice_, sizeof(double) * 9);
+  p->total_tmat[0] = 1;
+  p->total_tmat[1] = 0;
+  p->total_tmat[2] = 0;
+  p->total_tmat[3] = 0;
+  p->total_tmat[4] = 1;
+  p->total_tmat[5] = 0;
+  p->total_tmat[6] = 0;
+  p->total_tmat[7] = 0;
+  p->total_tmat[8] = 1;
 
   return p;
 }
 
 static void finalize(double *lattice_, NiggliParams *p)
 {
+  free(p->total_tmat);
+  p->tmat = NULL;
   free(p->tmat);
   p->tmat = NULL;
+  free(p->lattice_orig);
+  p->lattice_orig = NULL;
   memcpy(lattice_, p->lattice, sizeof(double) * 9);
   free(p->lattice);
   p->lattice = NULL;
@@ -222,15 +266,8 @@ static void finalize(double *lattice_, NiggliParams *p)
 
 static int reset(NiggliParams *p)
 {
-  double *lat_tmp;
-
-  lat_tmp = NULL;
-  
-  if ((lat_tmp = multiply_matrices(p->lattice, p->tmat)) == NULL) {return 0;}
-  memcpy(p->lattice, lat_tmp, sizeof(double) * 9);
-  free(lat_tmp);
-  lat_tmp = NULL;
-
+  if (! update_total_tmat(p)) {return 0;}
+  if (! update_lattice(p)) {return 0;}
   return set_parameters(p);
 }
 
@@ -420,7 +457,7 @@ static double * get_transpose(const double *M)
       M_T[i * 3 + j] = M[j * 3 + i];
     }
   }
-  
+
   return M_T;
 }
 
@@ -431,8 +468,15 @@ static double * get_metric(const double *M)
   G = NULL;
   M_T = NULL;
 
-  if ((M_T = get_transpose(M)) == NULL) {return NULL;}
-  if ((G = multiply_matrices(M_T, M)) == NULL) {return NULL;}
+  if ((M_T = get_transpose(M)) == NULL) {
+    return NULL;
+  }
+
+  if ((G = multiply_matrices(M_T, M)) == NULL) {
+    free(M_T);
+    M_T = NULL;
+    return NULL;
+  }
 
   free(M_T);
   M_T = NULL;
@@ -456,10 +500,65 @@ static double * multiply_matrices(const double *L, const double *R)
     for (j = 0; j < 3; j++) {
       M[i * 3 + j] = 0;
       for (k = 0; k < 3; k++) {
-	M[i * 3 + j] += L[i * 3 + k] * R[k * 3 + j];
+        M[i * 3 + j] += L[i * 3 + k] * R[k * 3 + j];
       }
     }
   }
-  
+
   return M;
+}
+
+static int update_lattice(NiggliParams *p)
+{
+  int i, j, k;
+  double *M;
+
+  M = NULL;
+
+  if ((M = (double*)malloc(sizeof(double) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    return 0;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      M[i * 3 + j] = 0;
+      for (k = 0; k < 3; k++) {
+        M[i * 3 + j] += p->lattice_orig[i * 3 + k] * p->total_tmat[k * 3 + j];
+      }
+    }
+  }
+
+  memcpy(p->lattice, M, sizeof(double) * 9);
+
+  return 1;
+}
+
+static int update_total_tmat(NiggliParams *p)
+{
+  int i, j, k;
+  long *M;
+
+  M = NULL;
+
+  if ((M = (long*)malloc(sizeof(long) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    return 0;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      M[i * 3 + j] = 0;
+      for (k = 0; k < 3; k++) {
+        M[i * 3 + j] += p->total_tmat[i * 3 + k] * p->tmat[k * 3 + j];
+      }
+    }
+  }
+
+  memcpy(p->total_tmat, M, sizeof(long) * 9);
+
+  free(M);
+  M = NULL;
+
+  return 1;
 }
