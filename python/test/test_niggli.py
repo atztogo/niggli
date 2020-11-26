@@ -2,12 +2,15 @@ import numpy as np
 from niggli import niggli_reduce
 
 
+tmat_U = [[1, 1, 2], [0, 1, 3], [0, 0, 1]]
+tmat_L = [[1, 0, 0], [1, 1, 0], [2, 3, 1]]
+tmat_big = [[1, 0, 0], [15, 1, 0], [-18, 25, 1]]
+
+
 def test_reference_data(test_data):
     input_lattices, reference_lattices = test_data
     for i, reference_lattice in enumerate(reference_lattices):
-        angles = np.array(_get_angles(reference_lattice))
-        all_acute = (angles < 90 + 1e-3).all()
-        all_nonacute = (angles > 90 - 1e-3).all()
+        all_acute, all_nonacute, angles = _get_angle_types(reference_lattice)
         assert all_acute or all_nonacute, ("%d %s" % (i + 1, angles))
 
 
@@ -33,8 +36,40 @@ def test_niggli_reduce(test_data):
                  " angles: %s" % np.array(_get_angles(reduced_lattice))]))
 
 
+def test_niggli_reduce_for_modified_lattices(test_data):
+    input_lattices, reference_lattices = test_data
+
+    for tmat in (tmat_U, tmat_L, tmat_big, np.dot(tmat_U, tmat_L)):
+        for i, (input_lattice, reference_lattice) in enumerate(
+                zip(input_lattices, reference_lattices)):
+            mod_lattice = _modify_lattice(input_lattice, tmat)
+            reduced_lattice = niggli_reduce(mod_lattice)
+            lengths = np.sort(_get_lattice_parameters(reduced_lattice))
+            lengths_ref = np.sort(_get_lattice_parameters(reference_lattice))
+
+            np.testing.assert_allclose(
+                lengths, lengths_ref,
+                err_msg="\n".join(
+                    ["# %d" % (i + 1),
+                     "Input lattice (modified)",
+                     "%s" % input_lattice,
+                     " angles: %s" % np.array(_get_angles(mod_lattice)),
+                     "Reduced lattice in reference data",
+                     "%s" % reference_lattice,
+                     " angles: %s" % np.array(_get_angles(reference_lattice)),
+                     "Reduced lattice",
+                     "%s" % reduced_lattice,
+                     " angles: %s" % np.array(_get_angles(reduced_lattice))]))
+
+
+def _modify_lattice(lattice, tmat):
+    mod_lattice = np.dot(lattice, tmat)
+    assert abs(np.linalg.det(mod_lattice) - np.linalg.det(lattice)) < 1e-5
+    return mod_lattice
+
+
 def _get_lattice_parameters(lattice):
-    return np.sqrt(np.dot(lattice.T, lattice).diagonal())
+    return np.sqrt(np.dot(np.transpose(lattice), lattice).diagonal())
 
 
 def _get_angles(lattice):
@@ -43,6 +78,13 @@ def _get_angles(lattice):
     beta = np.arccos(np.vdot(lattice[:, 2], lattice[:, 0]) / c / a)
     gamma = np.arccos(np.vdot(lattice[:, 0], lattice[:, 1]) / a / b)
     return np.array([alpha, beta, gamma]) / np.pi * 180
+
+
+def _get_angle_types(lattice):
+    angles = np.array(_get_angles(lattice))
+    all_acute = (angles < 90 + 1e-3).all()
+    all_nonacute = (angles > 90 - 1e-3).all()
+    return all_acute, all_nonacute, angles
 
 
 def _show_lattice(i, lattice):

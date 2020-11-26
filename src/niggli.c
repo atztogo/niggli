@@ -38,7 +38,7 @@
 #include <string.h>
 #include "niggli.h"
 
-#define NIGGLI_MAX_NUM_LOOP 100
+#define NIGGLI_MAX_NUM_LOOP 10000
 
 typedef struct {
   double A;
