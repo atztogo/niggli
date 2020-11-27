@@ -87,7 +87,7 @@ static void get_exteneded_basis(double basis[4][3],
 static int get_delaunay_shortest_vectors(double basis[4][3],
                                          const double eps_);
 static double norm_squared(const double a[3]);
-static void copy_vector(double a[3], const double b[3]);
+static void swap_vectors(double a[3], double b[3]);
 
 #ifdef NIGGLI_DEBUG
 #define debug_print(...) printf(__VA_ARGS__)
@@ -662,9 +662,9 @@ static void get_exteneded_basis(double basis[4][3],
 static int get_delaunay_shortest_vectors(double basis[4][3],
                                          const double eps_)
 {
-  int i, j, succeeded;
+  int i, j, k, succeeded;
   double det;
-  double b[7][3], tmpvec[3];
+  double b[7][3];
 
   succeeded = 0;
 
@@ -689,32 +689,33 @@ static int get_delaunay_shortest_vectors(double basis[4][3],
   for (i = 0; i < 6; i++) {
     for (j = 0; j < 6; j++) {
       if (norm_squared(b[j]) > norm_squared(b[j + 1]) + eps_) {
-        copy_vector(tmpvec, b[j]);
-        copy_vector(b[j], b[j + 1]);
-        copy_vector(b[j +1], tmpvec);
+        swap_vectors(b[j], b[j + 1]);
       }
     }
   }
 
-  for (i = 2; i < 7; i++) {
-    det = (b[0][0] * (b[1][1] * b[i][2] - b[1][2] * b[i][1]) +
-           b[0][1] * (b[1][2] * b[i][0] - b[1][0] * b[i][2]) +
-           b[0][2] * (b[1][0] * b[i][1] - b[1][1] * b[i][0]));
-    if (fabs(det) > eps_) {
-      for (j = 0; j < 3; j++) {
-        if (det > 0) {
-          basis[0][j] = b[0][j];
-        } else {
-          basis[0][j] = -b[0][j];
+  for (i = 1; i < 6; i++) {
+    for (j = i + 1; j < 7; j++) {
+      det = (b[0][0] * (b[i][1] * b[j][2] - b[i][2] * b[j][1]) +
+             b[0][1] * (b[i][2] * b[j][0] - b[i][0] * b[j][2]) +
+             b[0][2] * (b[i][0] * b[j][1] - b[i][1] * b[j][0]));
+      if (fabs(det) > eps_) {
+        for (k = 0; k < 3; k++) {
+          if (det > 0) {
+            basis[0][k] = b[0][k];
+          } else {
+            basis[0][k] = -b[0][k];
+          }
+          basis[1][k] = b[i][k];
+          basis[2][k] = b[j][k];
         }
-        basis[1][j] = b[1][j];
-        basis[2][j] = b[i][j];
+        succeeded = 1;
+        goto ret;
       }
-      succeeded = 1;
-      break;
     }
   }
 
+ret:
   return succeeded;
 }
 
@@ -723,9 +724,14 @@ static double norm_squared(const double a[3])
   return a[0] * a[0] + a[1] * a[1] + a[2] * a[2];
 }
 
-static void copy_vector(double a[3], const double b[3])
+static void swap_vectors(double a[3], double b[3])
 {
-  a[0] = b[0];
-  a[1] = b[1];
-  a[2] = b[2];
+  int i;
+  double tmp;
+
+  for (i = 0; i < 3; i++) {
+    tmp = a[i];
+    a[i] = b[i];
+    b[i] = tmp;
+  }
 }
