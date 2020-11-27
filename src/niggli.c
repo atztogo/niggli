@@ -37,8 +37,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "niggli.h"
+#include "version.h"
 
 #define NIGGLI_MAX_NUM_LOOP 10000
+#define DELAUNAY_MAX_NUM_LOOP 1000000
 
 typedef struct {
   double A;
@@ -57,6 +59,7 @@ typedef struct {
   double *lattice_orig;
 } NiggliParams;
 
+static int run_niggli_reduce(double *lattice_, const double eps_);
 static NiggliParams * initialize(const double *lattice_, const double eps_);
 static void finalize(double *lattice_, NiggliParams *p);
 static int reset(NiggliParams *p);
@@ -75,6 +78,16 @@ static double * get_metric(const double *M);
 static double * multiply_matrices(const double *L, const double *R);
 static int update_lattice(NiggliParams *p);
 static int update_total_tmat(NiggliParams *p);
+
+static int run_delaunay_reduction(double *lattice_, const double eps_);
+static int delaunay_reduce_basis(double basis[4][3],
+                                 const double symprec);
+static void get_exteneded_basis(double basis[4][3],
+                                const double *lattice);
+static int get_delaunay_shortest_vectors(double basis[4][3],
+                                         const double eps_);
+static double norm_squared(const double a[3]);
+static void copy_vector(double a[3], const double b[3]);
 
 #ifdef NIGGLI_DEBUG
 #define debug_print(...) printf(__VA_ARGS__)
@@ -102,7 +115,6 @@ static void debug_show(const int j, const NiggliParams *p)
 #endif
 
 #ifdef NIGGLI_WARNING
-#include <stdio.h>
 #define warning_print(...) fprintf(stderr,__VA_ARGS__)
 #else
 #define warning_print(...)
@@ -129,6 +141,24 @@ int niggli_get_micro_version(void)
 /* return 0 if failed */
 int niggli_reduce(double *lattice_, const double eps_)
 {
+  int succeeded;
+
+  succeeded = 0;
+  succeeded = run_niggli_reduce(lattice_, eps_);
+
+  if (! succeeded) {
+    /* Fallback to Delaunay reduction. */
+    /* This may induce round-off error when the number of iterations */
+    /* is large. */
+    run_delaunay_reduction(lattice_, eps_);
+    succeeded = run_niggli_reduce(lattice_, eps_);
+  }
+
+  return succeeded;
+}
+
+static int run_niggli_reduce(double *lattice_, const double eps_)
+{
   int i, j, succeeded;
   NiggliParams *p;
   int (*steps[8])(NiggliParams *p) = {step1, step2, step3, step4,
@@ -143,14 +173,14 @@ int niggli_reduce(double *lattice_, const double eps_)
 
   /* Step 0 */
   if (! set_parameters(p)) {
-    goto ret;
+    goto err;
   }
 
   for (i = 0; i < NIGGLI_MAX_NUM_LOOP; i++) {
     for (j = 0; j < 8; j++) {
       debug_show(j + 1, p);
       if ((*steps[j])(p)) {
-        if (! reset(p)) {goto ret;}
+        if (! reset(p)) {goto err;}
         if (j == 1 || j == 4 || j == 5 || j == 6 || j == 7) {break;}
       }
     }
@@ -162,7 +192,11 @@ int niggli_reduce(double *lattice_, const double eps_)
 
   debug_show(-1, p);
 
- ret:
+  if (succeeded) {
+    memcpy(lattice_, p->lattice, sizeof(double) * 9);
+  }
+
+ err:
   finalize(lattice_, p);
   return succeeded;
 }
@@ -257,7 +291,6 @@ static void finalize(double *lattice_, NiggliParams *p)
   p->tmat = NULL;
   free(p->lattice_orig);
   p->lattice_orig = NULL;
-  memcpy(lattice_, p->lattice, sizeof(double) * 9);
   free(p->lattice);
   p->lattice = NULL;
   free(p);
@@ -511,14 +544,7 @@ static double * multiply_matrices(const double *L, const double *R)
 static int update_lattice(NiggliParams *p)
 {
   int i, j, k;
-  double *M;
-
-  M = NULL;
-
-  if ((M = (double*)malloc(sizeof(double) * 9)) == NULL) {
-    warning_print("niggli: Memory could not be allocated.");
-    return 0;
-  }
+  double M[9];
 
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
@@ -537,14 +563,7 @@ static int update_lattice(NiggliParams *p)
 static int update_total_tmat(NiggliParams *p)
 {
   int i, j, k;
-  long *M;
-
-  M = NULL;
-
-  if ((M = (long*)malloc(sizeof(long) * 9)) == NULL) {
-    warning_print("niggli: Memory could not be allocated.");
-    return 0;
-  }
+  long M[9];
 
   for (i = 0; i < 3; i++) {
     for (j = 0; j < 3; j++) {
@@ -557,8 +576,156 @@ static int update_total_tmat(NiggliParams *p)
 
   memcpy(p->total_tmat, M, sizeof(long) * 9);
 
-  free(M);
-  M = NULL;
+  return 1;
+}
+
+
+static int run_delaunay_reduction(double *lattice_, const double eps_)
+{
+  int i, j, attempt, succeeded;
+  double basis[4][3];
+
+  succeeded = 0;
+  get_exteneded_basis(basis, lattice_);
+
+  for (attempt = 0; attempt < DELAUNAY_MAX_NUM_LOOP; attempt++) {
+    succeeded = delaunay_reduce_basis(basis, eps_);
+    if (succeeded) {
+      break;
+    }
+  }
+
+  if (!succeeded) {
+    return 0;
+  }
+
+  if (!get_delaunay_shortest_vectors(basis, eps_)) {
+    return 0;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      lattice_[i * 3 + j] = basis[j][i];
+    }
+  }
 
   return 1;
+}
+
+static int delaunay_reduce_basis(double basis[4][3],
+                                 const double symprec)
+{
+  int i, j, k, l;
+  double dot_product;
+
+  for (i = 0; i < 4; i++) {
+    for (j = i+1; j < 4; j++) {
+      dot_product = 0.0;
+      for (k = 0; k < 3; k++) {
+        dot_product += basis[i][k] * basis[j][k];
+      }
+      if (dot_product > symprec) {
+        for (k = 0; k < 4; k++) {
+          if (! (k == i || k == j)) {
+            for (l = 0; l < 3; l++) {
+              basis[k][l] += basis[i][l];
+            }
+          }
+        }
+        for (k = 0; k < 3; k++) {
+          basis[i][k] = -basis[i][k];
+        }
+        return 0;
+      }
+    }
+  }
+
+  return 1;
+}
+
+static void get_exteneded_basis(double basis[4][3],
+                                const double *lattice)
+{
+  int i, j;
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      basis[i][j] = lattice[j * 3 + i];
+    }
+  }
+
+  for (i = 0; i < 3; i++) {
+    basis[3][i] = -lattice[i * 3] -lattice[i * 3 + 1] -lattice[i * 3 + 2];
+  }
+}
+
+static int get_delaunay_shortest_vectors(double basis[4][3],
+                                         const double eps_)
+{
+  int i, j, succeeded;
+  double det;
+  double b[7][3], tmpvec[3];
+
+  succeeded = 0;
+
+  /* Search in the set {b1, b2, b3, b4, b1+b2, b2+b3, b3+b1} */
+  for (i = 0; i < 4; i++) {
+    for (j = 0; j < 3; j++) {
+      b[i][j] = basis[i][j];
+    }
+  }
+
+  for (i = 0; i < 3; i++) {
+    b[4][i] = basis[0][i] + basis[1][i];
+  }
+  for (i = 0; i < 3; i++) {
+    b[5][i] = basis[1][i] + basis[2][i];
+  }
+  for (i = 0; i < 3; i++) {
+    b[6][i] = basis[2][i] + basis[0][i];
+  }
+
+  /* Bubble sort */
+  for (i = 0; i < 6; i++) {
+    for (j = 0; j < 6; j++) {
+      if (norm_squared(b[j]) > norm_squared(b[j + 1]) + eps_) {
+        copy_vector(tmpvec, b[j]);
+        copy_vector(b[j], b[j + 1]);
+        copy_vector(b[j +1], tmpvec);
+      }
+    }
+  }
+
+  for (i = 2; i < 7; i++) {
+    det = (b[0][0] * (b[1][1] * b[i][2] - b[1][2] * b[i][1]) +
+           b[0][1] * (b[1][2] * b[i][0] - b[1][0] * b[i][2]) +
+           b[0][2] * (b[1][0] * b[i][1] - b[1][1] * b[i][0]));
+    if (fabs(det) > eps_) {
+      for (j = 0; j < 3; j++) {
+        if (det > 0) {
+          basis[0][j] = b[0][j];
+        } else {
+          basis[0][j] = -b[0][j];
+        }
+        basis[1][j] = b[1][j];
+        basis[2][j] = b[i][j];
+      }
+      succeeded = 1;
+      break;
+    }
+  }
+
+  return succeeded;
+}
+
+static double norm_squared(const double a[3])
+{
+  return a[0] * a[0] + a[1] * a[1] + a[2] * a[2];
+}
+
+static void copy_vector(double a[3], const double b[3])
+{
+  a[0] = b[0];
+  a[1] = b[1];
+  a[2] = b[2];
 }
