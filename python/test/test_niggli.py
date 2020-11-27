@@ -117,3 +117,14 @@ def _show_lattice(i, lattice):
     print("# %d" % (i + 1))
     for v in lattice.T:
         print(" ".join(["%20.16f" % x for x in v]))
+
+
+if __name__ == '__main__':
+    """Produce data file for C test
+
+
+    """
+
+    data = np.loadtxt("lattices.dat").reshape(-1, 3, 3)
+    np.savetxt("lattice_ravel.dat", data.ravel())
+    np.savetxt("lattice_large_L_ravel.dat", np.dot(data, tmat_large_L).ravel())

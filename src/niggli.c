@@ -74,8 +74,6 @@ static int step7(NiggliParams *p);
 static int step8(NiggliParams *p);
 static int set_parameters(NiggliParams *p);
 static void set_angle_types(NiggliParams *p);
-static double * get_transpose(const double *M);
-static double * get_metric(const double *M);
 static int update_lattice(NiggliParams *p);
 static int update_total_tmat(NiggliParams *p);
 
@@ -92,6 +90,8 @@ static int get_delaunay_shortest_vectors(double basis[4][3],
 static double * get_tmat(const double * orig_lat,
                          const double * cur_lat,
                          const double eps_);
+static double * transpose(const double *M);
+static double * get_metric(const double *M);
 static double norm_squared(const double a[3]);
 static void swap_vectors(double a[3], double b[3]);
 static double * inverse(const double *m, const double eps_);
@@ -483,74 +483,6 @@ static int step8(NiggliParams *p)
   else {return 0;}
 }
 
-static double * get_transpose(const double *M)
-{
-  int i, j;
-  double *M_T;
-
-  M_T = NULL;
-
-  if ((M_T = (double*)malloc(sizeof(double) * 9)) == NULL) {
-    warning_print("niggli: Memory could not be allocated.");
-    return NULL;
-  }
-
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++) {
-      M_T[i * 3 + j] = M[j * 3 + i];
-    }
-  }
-
-  return M_T;
-}
-
-static double * get_metric(const double *M)
-{
-  double *G, *M_T;
-
-  G = NULL;
-  M_T = NULL;
-
-  if ((M_T = get_transpose(M)) == NULL) {
-    return NULL;
-  }
-
-  if ((G = multiply(M_T, M)) == NULL) {
-    free(M_T);
-    M_T = NULL;
-    return NULL;
-  }
-
-  free(M_T);
-  M_T = NULL;
-
-  return G;
-}
-
-static double * multiply(const double *L, const double *R)
-{
-  int i, j, k;
-  double *M;
-
-  M = NULL;
-
-  if ((M = (double*)malloc(sizeof(double) * 9)) == NULL) {
-    warning_print("niggli: Memory could not be allocated.");
-    return NULL;
-  }
-
-  for (i = 0; i < 3; i++) {
-    for (j = 0; j < 3; j++) {
-      M[i * 3 + j] = 0;
-      for (k = 0; k < 3; k++) {
-        M[i * 3 + j] += L[i * 3 + k] * R[k * 3 + j];
-      }
-    }
-  }
-
-  return M;
-}
-
 static int update_lattice(NiggliParams *p)
 {
   int i, j, k;
@@ -823,6 +755,74 @@ static int get_delaunay_shortest_vectors(double basis[4][3],
 
 ret:
   return succeeded;
+}
+
+static double * get_metric(const double *M)
+{
+  double *G, *M_T;
+
+  G = NULL;
+  M_T = NULL;
+
+  if ((M_T = transpose(M)) == NULL) {
+    return NULL;
+  }
+
+  if ((G = multiply(M_T, M)) == NULL) {
+    free(M_T);
+    M_T = NULL;
+    return NULL;
+  }
+
+  free(M_T);
+  M_T = NULL;
+
+  return G;
+}
+
+static double * multiply(const double *L, const double *R)
+{
+  int i, j, k;
+  double *M;
+
+  M = NULL;
+
+  if ((M = (double*)malloc(sizeof(double) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    return NULL;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      M[i * 3 + j] = 0;
+      for (k = 0; k < 3; k++) {
+        M[i * 3 + j] += L[i * 3 + k] * R[k * 3 + j];
+      }
+    }
+  }
+
+  return M;
+}
+
+static double * transpose(const double *M)
+{
+  int i, j;
+  double *M_T;
+
+  M_T = NULL;
+
+  if ((M_T = (double*)malloc(sizeof(double) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    return NULL;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      M_T[i * 3 + j] = M[j * 3 + i];
+    }
+  }
+
+  return M_T;
 }
 
 static double norm_squared(const double a[3])
