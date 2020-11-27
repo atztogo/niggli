@@ -1,4 +1,4 @@
-/* Copyright (C) 2015 Atsushi Togo */
+/* Copyright (C) 2020 Atsushi Togo */
 /* All rights reserved. */
 
 /* This file is part of niggli. */
@@ -32,12 +32,11 @@
 /* ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE */
 /* POSSIBILITY OF SUCH DAMAGE. */
 
-#ifndef __NIGGLI_H__
-#define __NIGGLI_H__
+#ifndef __version_H__
+#define __version_H__
 
-int niggli_get_major_version(void);
-int niggli_get_minor_version(void);
-int niggli_get_micro_version(void);
-int niggli_reduce(double *lattice_, const double eps_);
+#define NIGGLI_MAJOR_VERSION 0
+#define NIGGLI_MINOR_VERSION 1
+#define NIGGLI_MICRO_VERSION 0
 
 #endif

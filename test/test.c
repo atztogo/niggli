@@ -1,40 +1,65 @@
 #include "niggli.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
+#include <math.h>
 
-void show(double lattice[3][3])
+/* np.savetxt("lattice_ravel.dat", np.loadtxt("lattices.dat").ravel()) */
+
+static int run_test(FILE *fptr);
+
+
+int main(void)
 {
-  int i;
-  for (i = 0; i < 3; i++) {
-    printf("%f %f %f\n", lattice[i][0], lattice[i][1], lattice[i][2]);
+  int succeeded;
+  FILE *fptr;
+
+  succeeded = 0;
+
+  fptr = fopen("lattice_ravel.dat", "r");
+  if (fptr == NULL) {
+    printf("File could not be opened.");
+    return 1;
   }
+  run_test(fptr);
+  fclose(fptr);
+
+  fptr = fopen("lattice_large_L_ravel.dat", "r");
+  if (fptr == NULL) {
+    printf("File could not be opened.");
+    return 1;
+  }
+  run_test(fptr);
+  fclose(fptr);
+
+  return succeeded;
 }
 
-int main(void) {
-  int i, j;
-  double *metric;
-  double lattice_1[3][3] = {
-    {4, 0, 0},
-    {1, 4, 0},
-    {0, 0, 3}
-  };
+static int run_test(FILE *fptr)
+{
+  int i, j, succeeded, nlat;
+  char * line = NULL;
+  size_t len = 0;
+  ssize_t read;
+  double eps;
+  double lat[9];
 
-  double lattice_2[3][3] = {
-    {  5.5089974077853840,  0.0000000000000000,  0.0000000000000000},
-    { -2.3104709548280056,  6.6161727417255296,  0.0000000000000000},
-    { -1.1044014154165944, -1.5396840484579815, 12.1086359754045372}
-  };
+  succeeded = 0;
+  eps = 1e-5;
+  nlat = 783;
 
-  printf("Original\n");
-  show(lattice_1);
-  niggli_reduce((double*)lattice_1, 0.001);
-  printf("Final\n");
-  show(lattice_1);
+  for (i = 0; i < nlat; i++) {
+    printf("lattice %d: ", (i + 1));
+    for (j = 0; j < 9; j++) {
+      read = getline(&line, &len, fptr);
+      lat[j] = atof(line);
+      printf("%f ", lat[j]);
+    }
+    printf("\n");
+    if (!niggli_reduce(lat, eps)) {
+      succeeded = 1;
+    }
+  }
 
-  printf("Original\n");
-  show(lattice_2);
-  niggli_reduce((double*)lattice_2, 0.001);
-  printf("Final\n");
-  show(lattice_2);
-  
+  return succeeded;
 }
