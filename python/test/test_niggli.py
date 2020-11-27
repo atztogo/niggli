@@ -4,7 +4,10 @@ from niggli import niggli_reduce
 
 tmat_U = [[1, 1, 2], [0, 1, 3], [0, 0, 1]]
 tmat_L = [[1, 0, 0], [1, 1, 0], [2, 3, 1]]
-tmat_big = [[1, 0, 0], [15, 1, 0], [-18, 25, 1]]
+tmat_small_L = [[1, -18, 25], [0, 1, 15], [0, 0, 1]]
+tmat_small_U = [[1, 0, 0], [15, 1, 0], [-18, 25, 1]]
+tmat_large_L = [[1, 0, 0], [1500, 1, 0], [-180, 250, 1]]
+tmat_large_U = [[1, -180, 250], [0, 1, 1500], [0, 0, 1]]
 
 
 def test_reference_data(test_data):
@@ -15,6 +18,18 @@ def test_reference_data(test_data):
 
 
 def test_niggli_reduce(test_data):
+    """
+
+    This test assumes no fallback to Delaunay reduction.
+    Change of the following number in `src/niggli.c` may result in
+    different output basis vectors:
+
+        #define NIGGLI_MAX_NUM_LOOP 10000
+
+    See how the fallback works at 'niggli_reduce' in src/niggli.c.
+
+    """
+
     input_lattices, reference_lattices = test_data
     for i, (input_lattice, reference_lattice) in enumerate(
             zip(input_lattices, reference_lattices)):
@@ -37,9 +52,20 @@ def test_niggli_reduce(test_data):
 
 
 def test_niggli_reduce_for_modified_lattices(test_data):
+    """
+
+    This test should work even when fallback to Delaunay reduction happens.
+    See docstring of `test_niggli_reduce` about the fallback to Delaunay
+    reduction.
+
+    """
+
     input_lattices, reference_lattices = test_data
 
-    for tmat in (tmat_U, tmat_L, tmat_big, np.dot(tmat_U, tmat_L)):
+    for tmat in (
+            tmat_U, tmat_L, np.dot(tmat_U, tmat_L),
+            tmat_small_U, tmat_small_L, np.dot(tmat_small_U, tmat_small_L),
+            tmat_large_U, tmat_large_L):
         for i, (input_lattice, reference_lattice) in enumerate(
                 zip(input_lattices, reference_lattices)):
             mod_lattice = _modify_lattice(input_lattice, tmat)

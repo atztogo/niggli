@@ -18,7 +18,7 @@ extension = Extension('niggli._niggli',
                       define_macros=define_macros)
 
 version_nums = [None, None, None]
-with open(include_dirs[0] + "/niggli.h") as w:
+with open(include_dirs[0] + "/version.h") as w:
     for line in w:
         for i, chars in enumerate(("MAJOR", "MINOR", "MICRO")):
             if chars in line:
