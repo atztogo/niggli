@@ -41,6 +41,7 @@
 
 #define NIGGLI_MAX_NUM_LOOP 10000
 #define DELAUNAY_MAX_NUM_LOOP 1000000
+#define DELAUNAY_CHECK_FREQUENCY 1000
 
 typedef struct {
   double A;
@@ -75,19 +76,28 @@ static int set_parameters(NiggliParams *p);
 static void set_angle_types(NiggliParams *p);
 static double * get_transpose(const double *M);
 static double * get_metric(const double *M);
-static double * multiply_matrices(const double *L, const double *R);
 static int update_lattice(NiggliParams *p);
 static int update_total_tmat(NiggliParams *p);
 
 static int run_delaunay_reduction(double *lattice_, const double eps_);
+static int purify_basis(double basis[4][3],
+                        const double *lattice_,
+                        const double eps_);
 static int delaunay_reduce_basis(double basis[4][3],
                                  const double symprec);
-static void get_exteneded_basis(double basis[4][3],
-                                const double *lattice);
+static void get_delaunay_exteneded_basis(double basis[4][3],
+                                         const double *lattice);
 static int get_delaunay_shortest_vectors(double basis[4][3],
                                          const double eps_);
+static double * get_tmat(const double * orig_lat,
+                         const double * cur_lat,
+                         const double eps_);
 static double norm_squared(const double a[3]);
 static void swap_vectors(double a[3], double b[3]);
+static double * inverse(const double *m, const double eps_);
+static double determinant(const double *m);
+static double * multiply(const double *L, const double *R);
+static long nint(const double a);
 
 #ifdef NIGGLI_DEBUG
 #define debug_print(...) printf(__VA_ARGS__)
@@ -505,7 +515,7 @@ static double * get_metric(const double *M)
     return NULL;
   }
 
-  if ((G = multiply_matrices(M_T, M)) == NULL) {
+  if ((G = multiply(M_T, M)) == NULL) {
     free(M_T);
     M_T = NULL;
     return NULL;
@@ -517,7 +527,7 @@ static double * get_metric(const double *M)
   return G;
 }
 
-static double * multiply_matrices(const double *L, const double *R)
+static double * multiply(const double *L, const double *R)
 {
   int i, j, k;
   double *M;
@@ -586,21 +596,27 @@ static int run_delaunay_reduction(double *lattice_, const double eps_)
   double basis[4][3];
 
   succeeded = 0;
-  get_exteneded_basis(basis, lattice_);
+  get_delaunay_exteneded_basis(basis, lattice_);
 
-  for (attempt = 0; attempt < DELAUNAY_MAX_NUM_LOOP; attempt++) {
+  for (attempt = 1; attempt < DELAUNAY_MAX_NUM_LOOP; attempt++) {
     succeeded = delaunay_reduce_basis(basis, eps_);
     if (succeeded) {
       break;
     }
+    if (attempt % DELAUNAY_CHECK_FREQUENCY == 0) {
+      if (!purify_basis(basis, lattice_, eps_)) {
+        goto err;
+      }
+    }
   }
 
   if (!succeeded) {
-    return 0;
+    goto err;
   }
 
-  if (!get_delaunay_shortest_vectors(basis, eps_)) {
-    return 0;
+  if (!purify_basis(basis, lattice_, eps_)) {
+    succeeded = 0;
+    goto err;
   }
 
   for (i = 0; i < 3; i++) {
@@ -609,7 +625,97 @@ static int run_delaunay_reduction(double *lattice_, const double eps_)
     }
   }
 
-  return 1;
+err:
+  return succeeded;
+}
+
+static double * get_tmat(const double * orig_lat,
+                         const double * cur_lat,
+                         const double eps_)
+{
+  double *inv, *tmat;
+
+  inv = NULL;
+  tmat = NULL;
+
+  if ((inv = inverse(orig_lat, eps_)) == NULL) {
+    goto err;
+  }
+
+  if ((tmat = multiply(inv, cur_lat)) == NULL) {
+    goto err;
+  }
+
+err:
+  if (inv != NULL) {
+    free(inv);
+    inv = NULL;
+  }
+  return tmat;
+}
+
+static int purify_basis(double basis[4][3],
+                        const double *lattice_,
+                        const double eps_)
+{
+  int i, j, succeeded;
+  double *inv, *tmat, *p_cur_lat;
+  double cur_lat[9];
+
+  succeeded = 0;
+  inv = NULL;
+  tmat = NULL;
+  p_cur_lat = NULL;
+
+  if (!get_delaunay_shortest_vectors(basis, eps_)) {
+    goto err;
+  }
+
+  for (i = 0; i < 3; i++) {
+    for (j = 0; j < 3; j++) {
+      cur_lat[i * 3 + j] = basis[j][i];
+    }
+  }
+
+  if ((tmat = get_tmat(lattice_, cur_lat, eps_)) == NULL) {
+    goto err;
+  }
+
+  if (fabs(determinant(tmat) - 1) > eps_) {
+    goto err;
+  }
+
+  for (i = 0; i < 9; i++) {
+    tmat[i] = nint(tmat[i]);
+  }
+
+  if (fabs(determinant(tmat) - 1) > eps_) {
+    goto err;
+  }
+
+  if ((p_cur_lat = multiply(lattice_, tmat)) == NULL) {
+    goto err;
+  }
+
+  get_delaunay_exteneded_basis(basis, p_cur_lat);
+  succeeded = 1;
+
+err:
+
+  if (p_cur_lat != NULL) {
+    free(p_cur_lat);
+    p_cur_lat = NULL;
+  }
+  if (tmat != NULL) {
+    free(tmat);
+    tmat = NULL;
+  }
+  if (inv != NULL) {
+    free(inv);
+    inv = NULL;
+  }
+
+  return succeeded;
 }
 
 static int delaunay_reduce_basis(double basis[4][3],
@@ -643,8 +749,8 @@ static int delaunay_reduce_basis(double basis[4][3],
   return 1;
 }
 
-static void get_exteneded_basis(double basis[4][3],
-                                const double *lattice)
+static void get_delaunay_exteneded_basis(double basis[4][3],
+                                         const double *lattice)
 {
   int i, j;
 
@@ -734,4 +840,50 @@ static void swap_vectors(double a[3], double b[3])
     a[i] = b[i];
     b[i] = tmp;
   }
+}
+
+static double * inverse(const double *m, const double eps_)
+{
+  double det;
+  double *inv;
+
+  inv = NULL;
+
+  det = determinant(m);
+  if (fabs(det) < eps_) {
+    goto err;
+  }
+
+  if ((inv = (double*)malloc(sizeof(double) * 9)) == NULL) {
+    warning_print("niggli: Memory could not be allocated.");
+    goto err;
+  }
+
+  inv[0] = (m[4] * m[8] - m[5] * m[7]) / det;
+  inv[1] = (m[7] * m[2] - m[8] * m[1]) / det;
+  inv[2] = (m[1] * m[5] - m[2] * m[4]) / det;
+  inv[3] = (m[5] * m[6] - m[3] * m[8]) / det;
+  inv[4] = (m[8] * m[0] - m[6] * m[2]) / det;
+  inv[6] = (m[3] * m[7] - m[4] * m[6]) / det;
+  inv[5] = (m[2] * m[3] - m[0] * m[5]) / det;
+  inv[7] = (m[6] * m[1] - m[7] * m[0]) / det;
+  inv[8] = (m[0] * m[4] - m[1] * m[3]) / det;
+
+err:
+  return inv;
+}
+
+static double determinant(const double *m)
+{
+  return (m[0] * (m[4] * m[8] - m[5] * m[7]) +
+          m[1] * (m[5] * m[6] - m[3] * m[8]) +
+          m[2] * (m[3] * m[7] - m[4] * m[6]));
+}
+
+static long nint(const double a)
+{
+  if (a < 0.0)
+    return (long) (a - 0.5);
+  else
+    return (long) (a + 0.5);
 }
