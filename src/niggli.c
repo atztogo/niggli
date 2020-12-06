@@ -15,7 +15,7 @@
 /*   the documentation and/or other materials provided with the */
 /*   distribution. */
 
-/* * Neither the name of the phonopy project nor the names of its */
+/* * Neither the name of the niggli project nor the names of its */
 /*   contributors may be used to endorse or promote products derived */
 /*   from this software without specific prior written permission. */
 
@@ -37,7 +37,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "niggli.h"
-#include "version.h"
 
 #define NIGGLI_MAX_NUM_LOOP 10000
 #define DELAUNAY_MAX_NUM_LOOP 1000000
