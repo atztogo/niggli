@@ -15,7 +15,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 
 # Version numbers
-file(READ ${PROJECT_SOURCE_DIR}/src/version.h version_file)
+file(READ ${PROJECT_SOURCE_DIR}/src/niggli.h version_file)
 string(REGEX MATCH "NIGGLI_MAJOR_VERSION ([0-9]+)" niggli_major_version ${version_file})
 set(niggli_major_version ${CMAKE_MATCH_1})
 string(REGEX MATCH "NIGGLI_MINOR_VERSION ([0-9]+)" niggli_minor_version ${version_file})
